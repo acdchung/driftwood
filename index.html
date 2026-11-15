@@ -861,13 +861,13 @@ const islandUniform = Array.from({length:24},()=>new THREE.Vector3(9999,9999,0))
 const WATER_SIZE=320, WATER_SEG=160;
 const waterGeo = new THREE.PlaneGeometry(WATER_SIZE,WATER_SIZE,WATER_SEG,WATER_SEG); waterGeo.rotateX(-Math.PI/2);
 const waterMat = new THREE.ShaderMaterial({
-  uniforms:{uTime:{value:0}, uIsl:{value:islandUniform}, uTint:{value:new THREE.Vector3(1,1,1)}, uNight:{value:0}},
+  uniforms:{uTime:{value:0}, uIsl:{value:islandUniform}, uTint:{value:new THREE.Vector3(1,1,1)}, uNight:{value:0}, uGlow:{value:new THREE.Vector4(0,0,5,0)}},
   vertexShader:`
     uniform float uTime; varying vec3 vW;
     float wave(vec2 p,float t){return 0.12*sin(p.x*0.18+t*1.1)+0.08*sin(p.y*0.23+t*1.4)+0.05*sin((p.x+p.y)*0.35+t*2.0);}
     void main(){vec4 w=modelMatrix*vec4(position,1.0);w.y+=wave(w.xz,uTime);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
   fragmentShader:`
-    uniform float uTime; uniform vec3 uIsl[24]; uniform vec3 uTint; uniform float uNight; varying vec3 vW;
+    uniform float uTime; uniform vec3 uIsl[24]; uniform vec3 uTint; uniform float uNight; uniform vec4 uGlow; varying vec3 vW;
     vec3 lin(vec3 c){return pow(c,vec3(2.2));}
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
@@ -919,6 +919,9 @@ const waterMat = new THREE.ShaderMaterial({
       foam+=smoothstep(0.24,0.0,ringD)*(1.0-ph)*0.75;
       col=mix(col,lin(vec3(1.0,0.99,0.95)),clamp(foam,0.0,1.0)*0.9);
       col*=uTint; col+=vec3(0.75,0.85,1.0)*sp*uNight*1.4;
+      // boat lantern glow, drawn on the water itself so waves can't clip it
+      float gr=length(vW.xz-uGlow.xy)/uGlow.z; float gl=smoothstep(1.0,0.0,gr); gl*=gl*(0.6+0.4*smoothstep(0.55,0.0,gr));
+      col+=lin(vec3(1.0,0.81,0.54))*gl*uGlow.w;
       gl_FragColor=vec4(col,1.0);
     }`
 });
@@ -1741,7 +1744,7 @@ function updateDay(dt,t){
   glowMat.opacity=nightK*.75;
   beam.rotation.y=t*.5; beam.userData.m.opacity=nightK*.07;
   boatLamp.userData.box.material.emissiveIntensity=.3+nightK*2.2; boatLight.intensity=nightK*22;
-  boatPool.position.set(boat.pos.x,waveH(boat.pos.x,boat.pos.z,t)+.08,boat.pos.z); boatPool.material.opacity=nightK*.32;
+  boatPool.visible=false; waterMat.uniforms.uGlow.value.set(boat.pos.x,boat.pos.z,5,nightK*.32);
   const [lbl,icn]=timeLabel(); if(lbl!==lastLabel){ lastLabel=lbl; $('timeTx').textContent=lbl; $('timeIc').innerHTML=TICON[icn];
     if(started&&lbl==='Night') say('night falls… new fish are stirring',boatTop(),{cls:'soft',dur:3,rise:2.5});
     if(started&&lbl==='Dawn'&&nightK<.5) say('the sun is coming up',boatTop(),{cls:'soft',dur:2.6,rise:2.5}); }
