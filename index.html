@@ -153,6 +153,29 @@
   #mapleg{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
   #mapleg span{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;color:#fff;display:inline-flex;align-items:center;gap:5px}
   #mapleg span.unk{background:#d9ccb4 !important;color:#8a7a62}
+  #decoBtn{position:fixed;left:18px;bottom:calc(max(22px,env(safe-area-inset-bottom)) + 34px);height:52px;padding:0 18px 0 14px;border-radius:26px;display:flex;align-items:center;gap:7px;
+    background:var(--cream);color:#c4643f;font-size:16px;font-weight:800;box-shadow:0 0 0 4px rgba(255,180,140,.85),0 8px 20px rgba(6,36,58,.3);z-index:6;transition:transform .28s cubic-bezier(.3,1.6,.5,1),opacity .2s}
+  #decoBtn svg{width:22px;height:22px} #decoBtn.hidden{transform:scale(0);opacity:0;pointer-events:none} #decoBtn:active{transform:scale(.92)}
+  #decoBtn.pulse{animation:dpulse 1.6s ease-in-out infinite} @keyframes dpulse{50%{box-shadow:0 0 0 9px rgba(255,180,140,.45),0 8px 20px rgba(6,36,58,.3)}}
+  #deco{position:fixed;left:0;right:0;bottom:0;z-index:9;pointer-events:none}
+  #deco.hidden{display:none}
+  #deco .dpanel{pointer-events:auto;margin:0 auto;max-width:620px;background:var(--cream);border-radius:22px 22px 0 0;padding:12px 12px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -10px 30px rgba(6,36,58,.25)}
+  #deco .dbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  #deco .dbar b{font-size:17px;white-space:nowrap} #deco .dbar span{flex:1;font-size:12.5px;color:var(--soft);font-weight:600;line-height:1.2}
+  #dDone{background:var(--coral);color:#fff;font-weight:800;border-radius:999px;padding:8px 16px;font-size:15px}
+  #dtray{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none} #dtray::-webkit-scrollbar{display:none}
+  .ditem{flex:none;width:84px;background:#fff;border-radius:14px;padding:6px 4px 8px;box-shadow:0 2px 0 #efe2c6;position:relative;font-size:11.5px;font-weight:700;line-height:1.15}
+  .ditem img{width:60px;height:60px;display:block;margin:0 auto 2px} .ditem i{position:absolute;top:5px;right:7px;font-style:normal;font-size:11px;color:var(--soft)}
+  .ditem:active{transform:scale(.94)} .dempty{font-size:13.5px;color:var(--soft);padding:10px 4px}
+  #dctl{pointer-events:auto;display:none;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;padding:0 10px}
+  #dctl.on{display:flex}
+  #dctl button{background:rgba(255,248,234,.96);color:var(--ink);font-weight:800;font-size:15px;padding:11px 16px;border-radius:999px;box-shadow:0 6px 16px rgba(6,36,58,.25)}
+  #dctl button.pri{background:#3f9f7f;color:#fff} #dctl button.pri.bad{background:#c9b8a6}
+  #tankpick .sub{color:var(--soft);font-weight:700;margin-left:auto;margin-right:10px}
+  .tpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+  .tp{background:#fff;border-radius:12px;padding:8px 6px;font-size:11.5px;font-weight:700;box-shadow:0 2px 0 #efe2c6;line-height:1.15}
+  .tp svg{height:34px;margin:0 auto 4px;display:block} .tp.on{box-shadow:0 0 0 3px #3f9f7f}
+  .row .f img{width:54px;height:54px;display:block}
   /* journal: a menu, so it keeps a surface */
   #mapv{position:fixed;inset:0;z-index:9;display:grid;place-items:center;background:rgba(8,36,56,.4);transition:opacity .25s;padding:calc(max(14px,env(safe-area-inset-top)) + 72px) 0 max(24px,env(safe-area-inset-bottom))}
   #mapv.hidden{opacity:0;pointer-events:none}
@@ -301,7 +324,7 @@
 <div id="journal" class="hidden"><div class="panel"><header><h2><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none"><path fill="currentColor" d="M10.268 20.158c.363.167.655.334.853.457.285.177.524.385.88.385.348 0 .595-.21.878-.385.198-.123.49-.29.853-.457.733-.339 1.711-.658 2.768-.658 1.279 0 2.438.468 3.18.862a1.592 1.592 0 0 0 1.514-.02c.427-.236.806-.71.806-1.342V6.5c0-.621-.295-1.263-.898-1.629-.774-.47-2.516-1.371-4.602-1.371-1.443 0-2.715.43-3.607.842-.354.164-.656.328-.893.468-.237-.14-.539-.304-.893-.468C10.215 3.931 8.943 3.5 7.5 3.5c-2.086 0-3.828.9-4.602 1.371A1.893 1.893 0 0 0 2 6.5V19c0 .633.379 1.106.806 1.342.423.233.996.295 1.515.02.741-.394 1.9-.862 3.179-.862 1.057 0 2.035.32 2.768.658"/></g></svg>Fish Journal <small id="jcount"></small></h2><button class="close" id="closeJ" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="m12 13.414 5.657 5.657a1 1 0 0 0 1.414-1.414L13.414 12l5.657-5.657a1 1 0 0 0-1.414-1.414L12 10.586 6.343 4.929A1 1 0 0 0 4.93 6.343L10.586 12l-5.657 5.657a1 1 0 1 0 1.414 1.414z"/></g></svg></button></header><div class="tabs" id="jtabs"><button data-t="fish" class="on">Fish</button><button data-t="notes">Notes <span id="ncount"></span></button></div><div id="jnotes" class="hidden"></div><div id="jlist"><div class="chips" id="jtiers"></div><div class="grid" id="jgrid"></div></div><div id="jdetail" class="hidden"></div></div></div>
 <div id="mapv" class="hidden"><div class="panel"><header><h2><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M9 5.054c-.065 1.642 0 11.973 0 11.973.16 0 .32.026.474.077L15 18.946V6.973a1.5 1.5 0 0 1-.474-.077zm-.474-1.95a1.5 1.5 0 0 1 .948 0L15 4.946l5.289-1.763A1.3 1.3 0 0 1 22 4.416V17.64a1.5 1.5 0 0 1-1.026 1.423l-5.5 1.833c-.308.103-.64.103-.948 0L9 19.054l-5.289 1.763A1.3 1.3 0 0 1 2 19.584V6.36a1.5 1.5 0 0 1 1.026-1.423z"/></g></svg>Sea Chart <small id="mcount"></small></h2><button class="close" id="closeM" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="m12 13.414 5.657 5.657a1 1 0 0 0 1.414-1.414L13.414 12l5.657-5.657a1 1 0 0 0-1.414-1.414L12 10.586 6.343 4.929A1 1 0 0 0 4.93 6.343L10.586 12l-5.657 5.657a1 1 0 1 0 1.414 1.414z"/></g></svg></button></header><canvas id="mapc"></canvas><div id="mapleg"></div><div id="maphint"></div></div></div>
 <div id="shop" class="sheet hidden"><div class="panel"><header><h2><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M17.5 3a2 2 0 0 1 1.6.8l2.688 3.584a.995.995 0 0 1 .204.616H22v1a3.99 3.99 0 0 1-1 2.646V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7.354A3.985 3.985 0 0 1 2 9V8h.008a.995.995 0 0 1 .204-.616L4.9 3.8A2 2 0 0 1 6.5 3zM20 9h-4a2 2 0 0 0 3.995.15zm-6 0h-4a2 2 0 0 0 3.995.15zM8 9H4a2 2 0 0 0 3.995.15z"/></g></svg>Trading Post</h2><button class="close" id="closeS" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="m12 13.414 5.657 5.657a1 1 0 0 0 1.414-1.414L13.414 12l5.657-5.657a1 1 0 0 0-1.414-1.414L12 10.586 6.343 4.929A1 1 0 0 0 4.93 6.343L10.586 12l-5.657 5.657a1 1 0 1 0 1.414 1.414z"/></g></svg></button></header>
-  <div class="tabs" id="stabs"><button data-t="sell" class="on">Sell</button><button data-t="gear">Gear</button><button data-t="style">Style</button></div><div id="sbody"></div></div></div>
+  <div class="tabs" id="stabs"><button data-t="sell" class="on">Sell</button><button data-t="gear">Gear</button><button data-t="decor">Decor</button><button data-t="style">Style</button></div><div id="sbody"></div></div></div>
 <div id="joy"><div id="knob"></div></div>
 
 <div id="start">
@@ -1185,7 +1208,7 @@ const BIOME_GEAR={ice:'icebow',ember:'emberhull',starlit:'deeplamp'};
 FISH.forEach(f=>{ if(f.biome&&BIOME_GEAR[f.biome]&&f.tier!=='Common') f.gear=BIOME_GEAR[f.biome]; });
 let save={caught:{}};
 try{ const s=JSON.parse(localStorage.getItem('driftwood-v2')); if(s&&s.caught) save=s; }catch(e){}
-save.visited=save.visited||{}; save.seen=save.seen||{}; save.biomes=save.biomes||{home:1};
+save.visited=save.visited||{}; save.inv=save.inv||{chair:1,plant:1}; save.decor=save.decor||[]; save.seen=save.seen||{}; save.biomes=save.biomes||{home:1};
 for(const k in save.caught) if(!FISH.some(f=>f.id===k)) delete save.caught[k];
 function persist(){ try{ localStorage.setItem('driftwood-v2',JSON.stringify(save)); }catch(e){} }
 // recolour a fish for its variant (used for the 2D art and the 3D fish that flies onto the deck)
@@ -1359,6 +1382,7 @@ const UPGRADES=[
   {id:'bait',  name:'Fancy Bait',    desc:'Better odds of rare fish',   icon:'magnet',      costs:[60,220,650]},
   {id:'sail',  name:'Big Sail',      desc:'Sail faster',                icon:'rocket_fill', costs:[50,180,520]},
   {id:'cooler',name:'Bigger Cooler', desc:'Carry more fish',            icon:'box_fill',    costs:[30,120,360], caps:[8,12,18,26]},
+  {id:'hull',     name:'Bigger Boat', desc:'More deck space to decorate', icon:'box_fill', costs:[350,1100,2800]},
   {id:'icebow',   name:'Ice Bow',     desc:'Sail Frost Reach at full speed and reach its rarer fish', icon:'tool_fill',     costs:[450]},
   {id:'emberhull',name:'Ember Hull',  desc:'Cross the Ember Sea at full speed and reach its rarer fish', icon:'rocket_fill', costs:[800]},
   {id:'deeplamp', name:'Deep Lantern',desc:'Spot fish in the Starlit Deep and reach its rarer fish', icon:'sparkles_fill', costs:[1400]},
@@ -1428,10 +1452,20 @@ function renderShop(){
     const b=$('sellAll'); if(b) b.onclick=sellAll;
   } else if(shopTab==='gear'){
     body.innerHTML=note+UPGRADES.map(u=>{ const l=lvl(u.id), max=l>=u.costs.length, cost=u.costs[l];
-      const extra=u.id==='cooler'?` · holds ${u.caps[l]}${max?'':' → '+u.caps[l+1]}`:'';
+      const extra=u.id==='cooler'?` · holds ${u.caps[l]}${max?'':' → '+u.caps[l+1]}`:u.id==='hull'?` · ${HULLS[l].name}${max?'':' → '+HULLS[l+1].name}`:'';
       return `<div class="gear"><div class="ic">${ICON2[u.icon]}</div><div class="t"><b>${u.name}</b><span>${u.desc}${extra}</span><div class="pips">${u.costs.map((_,i)=>`<i class="${i<l?'on':''}"></i>`).join('')}</div></div>
         ${max?`<button class="btn ghost" disabled>${ICON2.check_fill}Max</button>`:`<button class="btn ${save.shells<cost?'poor':''}" data-up="${u.id}">${sh}${cost}</button>`}</div>`; }).join('');
     body.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>buyUpgrade(b.dataset.up,b));
+  } else if(shopTab==='decor'){
+    const here=walker.shop?(walker.shopBiome||'home'):null;
+    body.innerHTML=note+BIOME_ORDER.filter(b=>save.biomes[b]).map(b=>{ const ids=DECOR_IDS.filter(k=>DECOR[k].biome===b); if(!ids.length) return '';
+      const can=walker.shop&&(b==='home'||here===b);
+      return `<h3 class="sec">${BIOMES[b].name}<small style="font-weight:600;color:var(--soft);font-size:12px;margin-left:6px">${b==='home'?'every trading post':'markets in these waters'}</small></h3>`+
+        ids.map(k=>{ const D=DECOR[k], own=save.inv[k]||0; return `<div class="row"><div class="f"><img src="${thumb(k)}" alt=""></div><div class="t"><b>${D.name}</b><span>${D.w}×${D.d}${D.sit?' · sit':''}${D.glow?' · glows':''}${D.tank?' · holds fish':''}${own?` · own ${own}`:''}</span></div><button class="btn ${!can||save.shells<D.cost?'poor':''}" data-buy="${k}">${sh}${D.cost}</button></div>`; }).join(''); }).join('')
+      +`<div class="empty">Explore new waters to find new decorations.</div>`;
+    body.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{ const k=b.dataset.buy, D=DECOR[k], can=walker.shop&&(D.biome==='home'||(walker.shopBiome||'home')===D.biome);
+      if(!can||save.shells<D.cost){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); sfx.miss(); if(walker.shop&&!can) say('sold at markets in '+BIOMES[D.biome].name,boatTop(),{cls:'small',dur:2}); return; }
+      save.shells-=D.cost; save.inv[k]=(save.inv[k]||0)+1; persist(); updateWallet(); sfx.buy(); renderShop(); });
   } else {
     body.innerHTML=Object.keys(STYLES).map(kind=>`<h3 class="sec">${STYLE_LABEL[kind]}</h3><div class="swatches">`+STYLES[kind].map(it=>{
       const own=isOwned(kind,it), on=save.equip[kind]===it.id, locked=it.unlock&&!own;
@@ -1451,7 +1485,8 @@ function sellAll(){
 function bumpEl(id){ const c=$(id); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
 function buyUpgrade(id,btn){ const u=UPGRADES.find(x=>x.id===id), l=lvl(id), cost=u.costs[l];
   if(cost===undefined) return; if(!walker.shop||save.shells<cost){ btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake'); sfx.miss(); return; }
-  save.shells-=cost; save.up[id]=l+1; persist(); updateWallet(); sfx.buy(); renderShop(); }
+  save.shells-=cost; save.up[id]=l+1; persist(); updateWallet(); sfx.buy(); renderShop();
+  if(id==='hull'){ setHull(); say(`your boat is now a ${HULL().name}!`,boatTop(),{cls:'gold',dur:3}); } }
 function pickStyle(kind,id,btn){ const it=STYLES[kind].find(x=>x.id===id);
   if(isOwned(kind,it)){ save.equip[kind]=id; persist(); applyStyle(); sfx.ui(); renderShop(); return; }
   if(it.unlock){ btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake'); return; }
@@ -1718,6 +1753,7 @@ addEventListener('keydown',e=>{
   if(e.code==='KeyB') toggleShop();
   if(e.code==='Escape') keyEsc=true;
   if(e.code==='KeyE'&&action) action.fn();
+  if(e.code==='Escape'&&deco.on) exitDeco();
   if(e.code==='Escape'){ toggleJournal(false); toggleMap(false); toggleShop(false); }
   if(!started && (e.code==='Enter'||e.code==='Space')) begin();
 });
@@ -1727,6 +1763,7 @@ const joy={on:false,id:null,sx:0,sy:0,x:0,y:0};
 const joyEl=$('joy'), knob=$('knob');
 canvas.addEventListener('pointerdown',e=>{
   initAudio();
+  if(deco.on){ decoDown(e); try{canvas.setPointerCapture(e.pointerId);}catch(_){}; return; }
   if(!$('catch').classList.contains('hidden')){ $('catch').classList.add('hidden'); catchTimer=0; }
   if(fish.state==='bite'){ judge(); return; }
   if(joy.on) return;
@@ -1736,13 +1773,14 @@ canvas.addEventListener('pointerdown',e=>{
   try{canvas.setPointerCapture(e.pointerId);}catch(_){}
 });
 canvas.addEventListener('pointermove',e=>{
+  if(deco.on){ decoMove(e); return; }
   if(!joy.on||e.pointerId!==joy.id) return;
   let dx=e.clientX-joy.sx, dy=e.clientY-joy.sy; const L=Math.hypot(dx,dy), max=55;
   if(L>max){dx*=max/L;dy*=max/L;}
   joy.x=dx/max; joy.y=dy/max; knob.style.transform=`translate(${dx}px,${dy}px)`;
   if(e.pointerType==='mouse') joyEl.classList.add('on');
 });
-function endJoy(e){ if(e.pointerId!==joy.id) return; joy.on=false; joy.x=joy.y=0; joyEl.classList.remove('on'); }
+function endJoy(e){ deco.drag=false; if(e.pointerId!==joy.id) return; joy.on=false; joy.x=joy.y=0; joyEl.classList.remove('on'); }
 canvas.addEventListener('pointerup',endJoy); canvas.addEventListener('pointercancel',endJoy);
 castBtn.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); initAudio(); onAction(); });
 
@@ -2131,7 +2169,7 @@ function blockedAt(x,z,y){
 function canStand(x,z,fromY){ const h=walkH(x,z,fromY); if(h===null) return null; if(Math.abs(h-fromY)>STEP_MAX) return null; if(blockedAt(x,z,h)) return null; return h; }
 function landingSpot(){
   let best=null, bd=1e9;
-  for(let a=0;a<24;a++) for(const d of [1.8,2.6,3.4,4.3,5.2]){
+  for(let a=0;a<24;a++) for(const d0 of [1.8,2.6,3.4,4.3,5.2]){ const d=d0*HULL().R/1.3;
     const x=boat.pos.x+Math.sin(a/24*Math.PI*2)*d, z=boat.pos.z+Math.cos(a/24*Math.PI*2)*d;
     const h=walkH(x,z); if(h===null||blockedAt(x,z,h)) continue; if(shoreDist(x,z)>0&&platAt(x,z)===null&&rampAt(x,z)===null) continue;
     if(d<bd){ bd=d; best=new THREE.Vector3(x,h,z); } }
@@ -2161,21 +2199,25 @@ function dust(p,n=2){ for(let i=0;i<n;i++){ const d=dustP[dustI++%dustP.length];
 let action=null, actHint=anchored('soft','');
 function findAction(){
   if(!started||fish.state!=='idle'||walker.jump) return null;
+  if(deco.on) return null;
+  if(walker.sit) return {label:'Stand up',fn:standUp,at:walker.pos.clone().setY(walker.y+2),hint:''};
   if(zoomT>0) return {label:'Done',fn:()=>{ zoomT=0; sfx.ui(); },at:walker.pos.clone().setY(walker.y+2),hint:''};
-  if(!walker.on){ if(Math.hypot(boat.vel.x,boat.vel.z)>4.5) return null; const L=landingSpot(); return L?{label:'Get out',fn:getOut,at:L,hint:''}:null; }
+  if(!walker.on){ const sp=Math.hypot(boat.vel.x,boat.vel.z); if(sp>4.5) return null; const L=landingSpot(); if(L) return {label:'Get out',fn:getOut,at:L,hint:''};
+    return sp<1.2&&$('catch').classList.contains('hidden')?{label:'Walk deck',fn:walkDeck,at:boatTop(),hint:''}:null; }
   let best=null, bd=1e9;
   for(const it of INTERACT){ if(it.once&&save.done&&save.done[it.once]&&it.act==='loot') continue;
     const d=Math.hypot(walker.pos.x-it.x,walker.pos.z-it.z); if(d>it.r) continue; if(it.y!==undefined&&Math.abs(walker.y-it.y)>1.2) continue;
     if(d<bd){ bd=d; best={label:it.label,fn:()=>doInteract(it),at:new THREE.Vector3(it.x,(it.y||walker.y)+1.8,it.z),hint:it.hint}; } }
   const db=Math.hypot(walker.pos.x-boat.pos.x,walker.pos.z-boat.pos.z);
-  if(db<Math.max(6,walker.reach||0)&&(!best||db<bd)) best={label:'Get in',fn:getIn,at:boatTop(),hint:''};
+  if(!walker.onDeck&&db<Math.max(6*HULL().R/1.3,walker.reach||0)&&(!best||db<bd)) best={label:'Get in',fn:getIn,at:boatTop(),hint:''};
   return best;
 }
 const actBtn=$('actBtn');
 actBtn.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); initAudio(); if(action) action.fn(); });
-let camZoom=1, zoomT=0, keyEsc=false;
+let camZoom=1, zoomT=0, keyEsc=false, editK=0;
 function doInteract(it){
-  if(it.act==='shop'){ walker.shop=true; toggleShop(true); sfx.ui(); NPCS.forEach(n=>{ if(n.getWorldPosition(new THREE.Vector3()).distanceTo(walker.pos)<5) n.userData.wave=1; }); }
+  if(deckInteract(it)) return;
+  if(it.act==='shop'){ walker.shop=true; walker.shopBiome=it.biome||'home'; toggleShop(true); sfx.ui(); NPCS.forEach(n=>{ if(n.getWorldPosition(new THREE.Vector3()).distanceTo(walker.pos)<5) n.userData.wave=1; }); }
   else if(it.act==='look'){ zoomT=1e9; walker.vx=walker.vz=0; sfx.gust(); say('what a view…',walker.pos.clone().setY(walker.y+2.2),{cls:'soft',dur:2.4});
     if(it.once&&!(save.done||{})[it.once]){ save.done=save.done||{}; save.done[it.once]=1; save.shells+=40; persist(); updateWallet(); setTimeout(()=>say('+40 shells for the climb!',walker.pos.clone().setY(walker.y+2.2),{cls:'gold',dur:2.4}),1200); } }
   else if(it.act==='rest') rest();
@@ -2188,6 +2230,7 @@ function rest(){
   setTimeout(()=>{ const night=isNight(); dayPh= night? .05 : .53; $('fade').classList.remove('on');
     setTimeout(()=>say(night?'you rested until morning':'you rested until dusk',walker.pos.clone().setY(walker.y+2.2),{cls:'soft',dur:2.6}),400); },1100);
 }
+function standUp(){ const S=walker.sit; if(!S) return; walker.sit=null; const f=S.face; walker.pos.set(S.x+Math.sin(f)*.55,0,S.z+Math.cos(f)*.55); walker.y=deckPlat?deckPlat.y:S.y; walker.face=f; sfx.step(true); }
 function updateWalker(dt,inp,t){
   if(walker.jump){ const J=walker.jump; J.t+=dt; const u=Math.min(1,J.t/J.dur);
     W.position.lerpVectors(J.from,J.to,u); W.position.y+=Math.sin(u*Math.PI)*1.4; W.rotation.y=Math.atan2(J.to.x-J.from.x,J.to.z-J.from.z);
@@ -2195,6 +2238,7 @@ function updateWalker(dt,inp,t){
     if(u>=1){ walker.jump=null; W.userData.body.rotation.x=0; J.done&&J.done(); }
     return; }
   if(!walker.on) return;
+  if(walker.sit){ const S=walker.sit; if(inp.m>.35){ standUp(); } else { W.position.set(S.x,S.y,S.z); W.rotation.y+=angDiff(W.rotation.y,S.face)*Math.min(1,dt*10); walker.pos.set(S.x,0,S.z); walker.y=S.y; W.userData.body.position.y=-.2; W.userData.body.rotation.x=0; return; } }
   if(zoomT>0){ if(inp.m>.35||keyEsc){ zoomT=0; keyEsc=false; } else return; }
   const sp=5.2; const tvx=inp.x*inp.m*sp, tvz=inp.z*inp.m*sp;
   walker.vx=damp(walker.vx,tvx,12,dt); walker.vz=damp(walker.vz,tvz,12,dt);
@@ -2230,7 +2274,8 @@ function updateActions(dt){
     n.rotation.y+=angDiff(n.rotation.y,want)*Math.min(1,dt*4); n.userData.body.position.y=Math.abs(Math.sin(time*2+wp.x))*.03+(n.userData.wave?Math.abs(Math.sin(time*10))*.12:0);
     if(n.userData.wave){ n.userData.wave-=dt; if(n.userData.wave<0) n.userData.wave=0; } }
   if(zoomT>0) zoomT-=dt;
-  camZoom=damp(camZoom,zoomT>0?2.3:(walker.on?.42:1),zoomT>0?1.2:2.2,dt);
+  editK=damp(editK,deco.on?1:0,3,dt);
+  camZoom=damp(camZoom,deco.on?HULL().zoom:zoomT>0?2.3:(walker.on?(walker.onDeck?.3:.42):1),deco.on?3:zoomT>0?1.2:2.2,dt);
 }
 
 // ================================================================ ENDLESS OCEAN
@@ -2402,7 +2447,7 @@ function buildPost(P,ch,tmp,tag){
   const hw=new THREE.Vector3(0,0,-1.9).applyAxisAngle(new THREE.Vector3(0,1,0),rot); COLLIDE.push({x:x+hw.x,z:z+hw.z,r:1.6,ch:tag});
   const cw=new THREE.Vector3(0,0,-.5).applyAxisAngle(new THREE.Vector3(0,1,0),rot); COLLIDE.push({x:x+cw.x,z:z+cw.z,r:.7,ch:tag});
   const iw=new THREE.Vector3(0,0,.9).applyAxisAngle(new THREE.Vector3(0,1,0),rot);
-  INTERACT.push({x:x+iw.x,z:z+iw.z,r:1.8,label:'Trade',hint:'Drifting Market',act:'shop',y:.66,ch:tag});
+  INTERACT.push({x:x+iw.x,z:z+iw.z,r:1.8,label:'Trade',hint:'Drifting Market',act:'shop',y:.66,ch:tag,biome:biomeAt(x,z)});
 }
 function unloadChunk(ch){
   const tag=ch.key, mine=o=>o.ch===tag;
@@ -2469,6 +2514,255 @@ function updateBiome(dt){
   glowCool.opacity=glowMat.opacity;
 }
 
+// ================================================================ HOUSEBOAT: hulls, deck decorating, walking the deck
+const CELL=.6, DECK_Y=.68;
+const HULLS=[
+  {name:'Skiff',      L:3.4,W:1.7,H:.8, helm:-1.0, mast:.45, cols:2,rows:2,zc:-.15,R:1.3,cabin:null,                     zoom:.15},
+  {name:'Sloop',      L:4.8,W:2.4,H:.9, helm:-1.6, mast:1.15,cols:3,rows:3,zc:-.15,R:1.7,cabin:null,                     zoom:.18},
+  {name:'Cabin Boat', L:6.4,W:3.2,H:1.0,helm:-1.25,mast:2.0, cols:4,rows:4,zc:.35, R:2.2,cabin:{z:-2.4,len:1.5,w:2.4,h:1.5},zoom:.24},
+  {name:'Houseboat',  L:8.6,W:3.8,H:1.1,helm:-1.15,mast:2.9, cols:5,rows:5,zc:.75, R:2.8,cabin:{z:-3.0,len:2.6,w:3.0,h:1.9},zoom:.29},
+];
+const HULL=()=>HULLS[Math.min(HULLS.length-1,lvl('hull'))];
+// ---- the boat's body is rebuilt when you upgrade the hull
+boat.hullG=new THREE.Group(); boat.rig=new THREE.Group();
+for(const o of [...boat.body.children]){ if(o===boat.ch||o===boatLamp||o===boatLight) continue;
+  if(o.material===boat.hullMat||(o.geometry&&o.geometry.type==='BoxGeometry')) boat.body.remove(o); else boat.rig.add(o); }
+boat.body.add(boat.hullG); boat.body.add(boat.rig);
+boat.decorG=new THREE.Group(); boat.body.add(boat.decorG);
+const gridG=new THREE.Group(); boat.body.add(gridG); gridG.visible=false;
+function setHull(){
+  const H=HULL(); boat.hullG.clear();
+  const hull=new THREE.Mesh(hullGeo(H.L,H.W,H.H),boat.hullMat); hull.castShadow=true; hull.position.y=DECK_Y-.08-H.H/2; boat.hullG.add(hull);
+  const dl=H.L*.78, dw=H.W*.8, dz=-H.L*.06;
+  const rim=new THREE.Mesh(new THREE.BoxGeometry(dw+.2,.1,dl+.1),mat('#fff3e2')); rim.position.set(0,.6,dz); boat.hullG.add(rim);
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(dw,.06,dl),mat('#e9c99a')); deck.position.set(0,DECK_Y-.03,dz); deck.receiveShadow=true; boat.hullG.add(deck);
+  for(let i=1;i<Math.round(dw/.32);i++){ const pl=new THREE.Mesh(new THREE.BoxGeometry(.02,.005,dl*.98),mat('#d6b07e')); pl.position.set(-dw/2+i*.32,DECK_Y+.001,dz); boat.hullG.add(pl); }
+  if(H.cabin){ const C=H.cabin, g=new THREE.Group();
+    const wall=new THREE.Mesh(new THREE.BoxGeometry(C.w,C.h,C.len),mat('#fff3e2')); wall.position.y=C.h/2; wall.castShadow=true; g.add(wall);
+    const roof=new THREE.Mesh(new THREE.BoxGeometry(C.w+.35,.14,C.len+.35),boat.hullMat); roof.position.y=C.h+.07; roof.castShadow=true; g.add(roof);
+    const door=new THREE.Mesh(new THREE.BoxGeometry(.6,1.05,.04),mat('#8f6238')); door.position.set(0,.53,C.len/2+.01); g.add(door);
+    for(const sx of [-1,1]){ const w=new THREE.Mesh(new THREE.BoxGeometry(.04,.42,.5),mat('#ffdc8a',{emissive:'#ffb84a',emissiveIntensity:.25})); w.position.set(sx*(C.w/2+.01),C.h*.6,0); g.add(w); }
+    if(H.name==='Houseboat'){ const ch=new THREE.Mesh(new THREE.BoxGeometry(.3,.6,.3),mat('#c4643f')); ch.position.set(C.w*.3,C.h+.4,-C.len*.25); g.add(ch); }
+    g.position.set(0,DECK_Y,C.z); boat.hullG.add(g); }
+  boat.rig.position.z=H.mast-.45; boat.rig.scale.setScalar(1+.18*lvl('hull'));
+  boat.ch.position.z=H.helm; boat.ch.position.y=DECK_Y-.13;
+  boatLamp.position.set(H.W*.32,DECK_Y-.18,H.helm-.45); boatLight.position.set(H.W*.32,DECK_Y+1.2,H.helm-.45);
+  // grid lines for decorating
+  gridG.clear(); const x0=-H.cols*CELL/2, z0=H.zc-H.rows*CELL/2, pts=[];
+  for(let i=0;i<=H.cols;i++) pts.push(x0+i*CELL,0,z0, x0+i*CELL,0,z0+H.rows*CELL);
+  for(let j=0;j<=H.rows;j++) pts.push(x0,0,z0+j*CELL, x0+H.cols*CELL,0,z0+j*CELL);
+  const lg=new THREE.BufferGeometry(); lg.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+  const ln=new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.55,depthWrite:false})); ln.position.y=DECK_Y+.012; ln.renderOrder=4; gridG.add(ln);
+  renderDecor();
+}
+// ---- decorations: little procedural models, sold by area
+const DM=(c,o)=>mat(c,o);
+function dM(geo,col,x=0,y=0,z=0,o={}){ const m=new THREE.Mesh(geo,DM(col,o)); m.position.set(x,y,z); m.castShadow=true; return m; }
+const dG=(...ms)=>{ const g=new THREE.Group(); ms.forEach(m=>g.add(m)); return g; };
+const DECOR={
+  chair:   {name:'Deck Chair',     biome:'home', cost:40, w:1,d:1, sit:true, make:()=>dG(dM(new THREE.BoxGeometry(.42,.06,.4),'#ff8a5c',0,.28,0),dM(new THREE.BoxGeometry(.42,.42,.06),'#ff8a5c',0,.48,-.18),...[[-.17,-.15],[.17,-.15],[-.17,.15],[.17,.15]].map(([x,z])=>dM(new THREE.CylinderGeometry(.025,.025,.28,5),'#8f6238',x,.14,z)))},
+  plant:   {name:'Potted Fern',    biome:'home', cost:30, w:1,d:1, make:()=>dG(dM(new THREE.CylinderGeometry(.16,.12,.26,8),'#c4643f',0,.13,0),...[0,1,2,3,4].map(i=>{ const l=dM(new THREE.ConeGeometry(.07,.42,4),'#5fae4a',Math.cos(i*1.26)*.08,.42,Math.sin(i*1.26)*.08); l.rotation.set(Math.sin(i*1.26)*.5,0,-Math.cos(i*1.26)*.5); return l; }))},
+  lantern: {name:'Paper Lantern',  biome:'home', cost:50, w:1,d:1, glow:'warm', make:()=>dG(dM(new THREE.CylinderGeometry(.03,.03,.9,5),'#6e4c2e',0,.45,0),dM(new THREE.SphereGeometry(.16,10,8),'#ffe0a8',0,.92,0,{emissive:'#ffb84a',emissiveIntensity:.6}))},
+  crates:  {name:'Crate Stack',    biome:'home', cost:25, w:1,d:1, make:()=>dG(dM(new THREE.BoxGeometry(.4,.36,.4),'#b98550',0,.18,0),dM(new THREE.BoxGeometry(.3,.28,.3),'#c99560',.03,.5,-.02))},
+  rug:     {name:'Striped Rug',    biome:'home', cost:60, w:2,d:2, flat:true, make:()=>dG(...[0,1,2,3,4].map(i=>dM(new THREE.BoxGeometry(1.1,.015,.22),i%2?'#fff3e2':'#4f9cc4',0,.01,-.44+i*.22)))},
+  table:   {name:'Tea Table',      biome:'home', cost:45, w:1,d:1, make:()=>dG(dM(new THREE.CylinderGeometry(.22,.22,.04,12),'#c08850',0,.38,0),dM(new THREE.CylinderGeometry(.03,.05,.36,6),'#8f6238',0,.18,0),dM(new THREE.CylinderGeometry(.05,.04,.08,8),'#fff3e2',.06,.44,0))},
+  tank:    {name:'Aquarium',       biome:'home', cost:120,w:2,d:1, tank:true, make:makeTank},
+  umbrella:{name:'Beach Umbrella', biome:'reef', cost:90, w:1,d:1, make:()=>{ const t=new THREE.Mesh(new THREE.ConeGeometry(.5,.22,8),DM('#ff6b8a')); t.position.y=1.15; t.castShadow=true; return dG(dM(new THREE.CylinderGeometry(.025,.025,1.15,5),'#fff3e2',0,.57,0),t,dM(new THREE.SphereGeometry(.04,6,4),'#fff3e2',0,1.27,0)); }},
+  coralpot:{name:'Coral Planter',  biome:'reef', cost:80, w:1,d:1, make:()=>dG(dM(new THREE.BoxGeometry(.4,.18,.4),'#fff3e2',0,.09,0),...[0,1,2,3].map(i=>{ const c=dM(new THREE.CylinderGeometry(.03,.05,.3+i*.06,5),['#ff9eb5','#ffb36b','#f7d6ff','#ff7a8a'][i],-.1+i*.07,.3,(i%2-.5)*.12); c.rotation.z=(i-1.5)*.25; return c; }))},
+  tiki:    {name:'Tiki Torch',     biome:'reef', cost:110,w:1,d:1, glow:'warm', make:()=>dG(dM(new THREE.CylinderGeometry(.035,.045,1.0,6),'#8f6238',0,.5,0),dM(new THREE.CylinderGeometry(.08,.05,.14,8),'#5a3e2b',0,1.05,0),dM(new THREE.ConeGeometry(.07,.2,6),'#ffb347',0,1.2,0,{emissive:'#ff8a2a',emissiveIntensity:1.2}))},
+  chime:   {name:'Shell Chime',    biome:'reef', cost:70, w:1,d:1, make:()=>dG(dM(new THREE.CylinderGeometry(.025,.025,1.0,5),'#c99560',0,.5,0),dM(new THREE.BoxGeometry(.4,.03,.03),'#c99560',.1,1.0,0),...[0,1,2].map(i=>dM(new THREE.ConeGeometry(.05,.1,5),['#ffd2bd','#fff3e2','#f7d6ff'][i],.02+i*.12,.8-i*.05,0)))},
+  mosspot: {name:'Moss Planter',   biome:'kelp', cost:80, w:1,d:1, make:()=>dG(dM(new THREE.CylinderGeometry(.18,.2,.22,8),'#7d8f6a',0,.11,0),dM(new THREE.IcosahedronGeometry(.2,0),'#5f9a52',0,.3,0),dM(new THREE.IcosahedronGeometry(.12,0),'#6dbb52',.1,.38,.05))},
+  dbench:  {name:'Driftwood Bench',biome:'kelp', cost:120,w:2,d:1, sit:true, make:()=>dG(dM(new THREE.BoxGeometry(1.0,.08,.3),'#b8a48a',0,.3,0),dM(new THREE.BoxGeometry(.08,.3,.26),'#9c8a72',-.4,.15,0),dM(new THREE.BoxGeometry(.08,.3,.26),'#9c8a72',.4,.15,0))},
+  barrel:  {name:'Rain Barrel',    biome:'kelp', cost:70, w:1,d:1, make:()=>dG(dM(new THREE.CylinderGeometry(.2,.2,.5,10),'#8f6238',0,.25,0),dM(new THREE.CylinderGeometry(.21,.21,.04,10),'#5e4637',0,.12,0),dM(new THREE.CylinderGeometry(.21,.21,.04,10),'#5e4637',0,.4,0),dM(new THREE.CylinderGeometry(.17,.17,.01,10),'#5a9ab0',0,.5,0))},
+  heron:   {name:'Heron Statue',   biome:'kelp', cost:150,w:1,d:1, make:()=>{ const n=dM(new THREE.CylinderGeometry(.03,.04,.35,5),'#cfd6dc',0,.75,.04); n.rotation.x=.3; const b=dM(new THREE.ConeGeometry(.03,.18,4),'#f2b632',0,.92,.18); b.rotation.x=Math.PI/2; return dG(dM(new THREE.BoxGeometry(.3,.1,.3),'#9aa3a8',0,.05,0),dM(new THREE.CylinderGeometry(.015,.015,.35,4),'#9aa3a8',0,.27,0),dM(new THREE.SphereGeometry(.14,8,6),'#e6ecf0',0,.5,0),n,dM(new THREE.SphereGeometry(.06,8,6),'#e6ecf0',0,.92,.08),b); }},
+  icelantern:{name:'Ice Lantern',  biome:'ice',  cost:160,w:1,d:1, glow:'cool', make:()=>dG(dM(new THREE.BoxGeometry(.3,.4,.3),'#d6f0ff',0,.2,0,{emissive:'#7fd0ff',emissiveIntensity:.5}),dM(new THREE.CylinderGeometry(.06,.06,.12,8),'#fff6c8',0,.2,0,{emissive:'#ffd36b',emissiveIntensity:1}))},
+  snowman: {name:'Snow Buddy',     biome:'ice',  cost:140,w:1,d:1, make:()=>{ const n=dM(new THREE.ConeGeometry(.035,.14,5),'#ff8a3d',0,.62,.13); n.rotation.x=Math.PI/2; return dG(dM(new THREE.SphereGeometry(.2,10,8),'#ffffff',0,.18,0),dM(new THREE.SphereGeometry(.14,10,8),'#ffffff',0,.46,0),n,dM(new THREE.CylinderGeometry(.1,.1,.12,8),'#36557a',0,.66,0)); }},
+  furrug:  {name:'Fur Rug',        biome:'ice',  cost:180,w:2,d:2, flat:true, make:()=>{ const m=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.03,14),DM('#f4f0e8')); m.scale.z=.85; m.position.y=.015; return dG(m); }},
+  crystalpot:{name:'Frost Crystal',biome:'ice',  cost:200,w:1,d:1, glow:'cool', make:()=>{ const c=dM(new THREE.OctahedronGeometry(.16,0),'#bfe9ff',0,.42,0,{emissive:'#6fc8ff',emissiveIntensity:.5}); c.scale.y=1.8; return dG(dM(new THREE.CylinderGeometry(.14,.12,.2,8),'#9bb7cc',0,.1,0),c); }},
+  brazier: {name:'Brazier',        biome:'ember',cost:220,w:1,d:1, glow:'warm', make:()=>dG(dM(new THREE.CylinderGeometry(.22,.12,.18,8),'#3a3238',0,.38,0),...[0,1,2].map(i=>{ const l=dM(new THREE.CylinderGeometry(.02,.02,.32,4),'#3a3238',Math.cos(i*2.1)*.12,.15,Math.sin(i*2.1)*.12); return l; }),dM(new THREE.ConeGeometry(.12,.24,6),'#ffb347',0,.56,0,{emissive:'#ff6a1a',emissiveIntensity:1.3}))},
+  lavalamp:{name:'Lava Lamp',      biome:'ember',cost:260,w:1,d:1, glow:'warm', make:()=>dG(dM(new THREE.CylinderGeometry(.1,.14,.12,8),'#3a3238',0,.06,0),dM(new THREE.CylinderGeometry(.07,.11,.46,10),'#ff7a4a',0,.35,0,{emissive:'#ff4a1a',emissiveIntensity:.8}),dM(new THREE.CylinderGeometry(.03,.07,.08,8),'#3a3238',0,.62,0))},
+  obsidian:{name:'Obsidian Statue',biome:'ember',cost:300,w:1,d:1, make:()=>{ const c=dM(new THREE.DodecahedronGeometry(.18,0),'#2a2230',0,.5,0); c.scale.y=1.5; return dG(dM(new THREE.BoxGeometry(.32,.2,.32),'#4a4048',0,.1,0),c); }},
+  starlamp:{name:'Star Lamp',      biome:'starlit',cost:320,w:1,d:1, glow:'cool', make:()=>{ const s=dM(new THREE.OctahedronGeometry(.14,0),'#fff6c8',0,1.0,0,{emissive:'#ffe08a',emissiveIntensity:1.2}); return dG(dM(new THREE.CylinderGeometry(.03,.03,.95,5),'#c8a6ff',0,.48,0),s); }},
+  mushpot: {name:'Glow Mushrooms', biome:'starlit',cost:280,w:1,d:1, glow:'cool', make:()=>dG(dM(new THREE.CylinderGeometry(.18,.15,.16,8),'#4a4470',0,.08,0),...[[0,0,.38],[.09,.05,.28],[-.08,-.06,.24]].map(([x,z,h])=>dG(dM(new THREE.CylinderGeometry(.025,.03,h,5),'#e8e0ff',x,.16+h/2,z),dM(new THREE.SphereGeometry(.08,8,5,0,6.28,0,1.6),'#7fe8ff',x,.16+h,z,{emissive:'#7fe8ff',emissiveIntensity:.9}))))},
+  moonchair:{name:'Moon Chair',    biome:'starlit',cost:360,w:1,d:1, sit:true, make:()=>{ const t=new THREE.Mesh(new THREE.TorusGeometry(.25,.08,8,16,Math.PI),DM('#8a7bd1')); t.rotation.x=Math.PI; t.position.y=.42; t.castShadow=true; return dG(t,dM(new THREE.CylinderGeometry(.18,.22,.08,10),'#4a4470',0,.04,0)); }},
+  crystal: {name:'Crystal Cluster',biome:'starlit',cost:400,w:1,d:1, glow:'cool', make:()=>dG(...[[0,0,.5],[.1,.06,.34],[-.1,.04,.3],[.02,-.1,.26]].map(([x,z,h])=>{ const c=dM(new THREE.OctahedronGeometry(.08,0),'#b9a6ff',x,h/2+.02,z,{emissive:'#8a6aff',emissiveIntensity:.8}); c.scale.y=h/.16; return c; }))},
+};
+const DECOR_IDS=Object.keys(DECOR);
+// ---- the aquarium: shows fish you've caught, swimming
+function makeTank(){ const g=new THREE.Group(), w=1.1, d=.5, h=.6;
+  g.add(dM(new THREE.BoxGeometry(w,.08,d),'#8f6238',0,.04,0));
+  g.add(dM(new THREE.BoxGeometry(w-.06,.05,d-.06),'#f3dcaa',0,.1,0));
+  const glass=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:'#9fe0f0',transparent:true,opacity:.28,roughness:.1,depthWrite:false})); glass.position.y=.08+h/2; glass.renderOrder=3; g.add(glass);
+  const water=new THREE.Mesh(new THREE.BoxGeometry(w-.04,h*.82,d-.04),new THREE.MeshStandardMaterial({color:'#5ac8e0',transparent:true,opacity:.22,depthWrite:false,emissive:'#2a8aa8',emissiveIntensity:.15})); water.position.y=.1+h*.41; water.renderOrder=2; g.add(water);
+  g.add(dM(new THREE.BoxGeometry(w+.04,.04,d+.04),'#8f6238',0,.08+h,0));
+  const weed=dM(new THREE.ConeGeometry(.04,.25,4),'#5fae4a',-.38,.24,-.1); g.add(weed);
+  g.userData.tank={w,d,h}; return g; }
+const tankFish=[];
+function fillTank(g,e){ const T=g.userData.tank; (e.fish||[]).slice(0,4).forEach((k,i)=>{ const [id,v]=k.split(':'), f=FISH.find(x=>x.id===id); if(!f) return;
+  const m=makeFlyer(variantFish(f,v||null)); m.scale.setScalar(.15*(f.scale||1)); m.traverse(o=>{ if(o.isMesh) o.castShadow=false; });
+  g.add(m); tankFish.push({m,T,ph:i*1.7+Math.random(),sp:.5+Math.random()*.4,g}); }); }
+// ---- render the layout onto the boat
+const decorObjs=[];
+function footprint(e){ const D=DECOR[e.k]; return e.ro%2?[D.d,D.w]:[D.w,D.d]; }
+function cellCenter(e){ const H=HULL(), [fw,fd]=footprint(e), x0=-H.cols*CELL/2, z0=H.zc-H.rows*CELL/2; return [x0+(e.c+fw/2)*CELL, z0+(e.r+fd/2)*CELL]; }
+function renderDecor(){
+  boat.decorG.clear(); decorObjs.length=0; removeWhere(tankFish,()=>true);
+  for(const e of save.decor){ if(!DECOR[e.k]) continue; const o=buildDecor(e); boat.decorG.add(o); decorObjs.push({e,o}); }
+}
+function buildDecor(e){ const D=DECOR[e.k], o=D.make(); const [x,z]=cellCenter(e); o.position.set(x,DECK_Y,z); o.rotation.y=e.ro*Math.PI/2; o.userData.e=e;
+  if(D.glow){ const sp=new THREE.Sprite(D.glow==='cool'?glowCool:glowMat); sp.scale.setScalar(2.6); sp.position.y=.7; sp.renderOrder=5; o.add(sp); }
+  if(D.tank) fillTank(o,e);
+  return o; }
+function fitsDeck(e,ignore){ const H=HULL(), [fw,fd]=footprint(e); if(e.c<0||e.r<0||e.c+fw>H.cols||e.r+fd>H.rows) return false;
+  for(const o of save.decor){ if(o===ignore||o===e) continue; const [ow,od]=footprint(o); if(e.c<o.c+ow&&o.c<e.c+fw&&e.r<o.r+od&&o.r<e.r+fd) return false; } return true; }
+const placedCount=k=>save.decor.filter(e=>e.k===k).length;
+const spare=k=>(save.inv[k]||0)-placedCount(k);
+// ---- thumbnails rendered once with the game's own renderer
+const thumbCache={};
+const thumbRT=new THREE.WebGLRenderTarget(96,96); thumbRT.texture.colorSpace=THREE.SRGBColorSpace;
+const thumbScene=new THREE.Scene(); thumbScene.add(new THREE.HemisphereLight('#ffffff','#e8d6b8',2.2)); { const dl=new THREE.DirectionalLight('#ffffff',2.2); dl.position.set(2,4,3); thumbScene.add(dl); }
+const thumbCam=new THREE.PerspectiveCamera(30,1,.1,50);
+function thumb(k){ if(thumbCache[k]) return thumbCache[k];
+  const D=DECOR[k], o=D.make(); thumbScene.add(o); const box=new THREE.Box3().setFromObject(o), c=box.getCenter(new THREE.Vector3()), s=box.getSize(new THREE.Vector3()).length();
+  thumbCam.position.set(c.x+s*1.1,c.y+s*.95,c.z+s*1.5); thumbCam.lookAt(c);
+  const prevT=renderer.getRenderTarget(); renderer.setRenderTarget(thumbRT); renderer.setClearColor(0x000000,0); renderer.clear(); renderer.render(thumbScene,thumbCam); 
+  const px=new Uint8Array(96*96*4); renderer.readRenderTargetPixels(thumbRT,0,0,96,96,px); renderer.setRenderTarget(prevT);
+  thumbScene.remove(o);
+  const cv=document.createElement('canvas'); cv.width=cv.height=96; const cx=cv.getContext('2d'), id=cx.createImageData(96,96);
+  for(let y=0;y<96;y++) id.data.set(px.subarray((95-y)*96*4,(96-y)*96*4),y*96*4); cx.putImageData(id,0,0);
+  return thumbCache[k]=cv.toDataURL(); }
+// ---- decorate mode
+const deco={on:false,held:null,heldObj:null,orig:null,drag:false,k:0};
+const decoEl=document.createElement('div'); decoEl.id='deco'; decoEl.className='hidden';
+decoEl.innerHTML=`<div id="dctl"><button data-a="rot">Rotate</button><button data-a="fish">Tank fish</button><button data-a="store">Put away</button><button data-a="place" class="pri">Place</button></div>
+  <div class="dpanel"><div class="dbar"><b id="dtitle">Decorate</b><span id="dhint"></span><button id="dDone">Done</button></div><div id="dtray"></div></div>`;
+document.body.appendChild(decoEl);
+const decoBtn=document.createElement('button'); decoBtn.id='decoBtn'; decoBtn.className='hidden';
+decoBtn.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.2 3 10.4V20a1 1 0 0 0 1 1h5.5v-6h5v6H20a1 1 0 0 0 1-1v-9.6z"/></svg>Decorate`;
+document.body.appendChild(decoBtn);
+const footM=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#7fe0a0',transparent:true,opacity:.45,depthWrite:false})); footM.renderOrder=4; footM.visible=false; boat.decorG.parent.add(footM);
+function decoTray(){
+  const H=HULL(), ids=DECOR_IDS.filter(k=>spare(k)>0);
+  $('dtitle').textContent=`Decorate · ${H.name}`;
+  $('dhint').textContent=deco.held?(DECOR[deco.held.k].name+(fitsDeck(deco.held,deco.held)?'':' · doesn’t fit there')):ids.length?'tap an item, or tap something on deck to move it':'buy decorations at any trading post';
+  $('dtray').innerHTML=ids.map(k=>`<button class="ditem" data-k="${k}"><img src="${thumb(k)}" alt=""><span>${DECOR[k].name}</span>${spare(k)>1?`<i>×${spare(k)}</i>`:''}</button>`).join('')||`<div class="dempty">Nothing in storage. Markets sell decorations: each area has its own.</div>`;
+  const ctl=$('dctl'); ctl.classList.toggle('on',!!deco.held);
+  ctl.querySelector('[data-a=fish]').style.display=deco.held&&DECOR[deco.held.k].tank?'':'none';
+  ctl.querySelector('[data-a=place]').classList.toggle('bad',!!deco.held&&!fitsDeck(deco.held,deco.held));
+}
+function canDecorate(){ return started&&fish.state==='idle'&&!walker.jump&&Math.hypot(boat.vel.x,boat.vel.z)<2.5&&(!walker.on||walker.onDeck)&&zoomT<=0; }
+function enterDeco(){
+  if(!canDecorate()) return;
+  if(walker.onDeck) leaveDeckInstant();
+  deco.on=true; boat.vel.x=boat.vel.z=0; boat.angVel=0; gridG.visible=true; decoEl.classList.remove('hidden'); decoBtn.classList.add('hidden');
+  setBtn('hidden'); toggleShop(false); toggleJournal(false); toggleMap(false); sfx.ui(); decoTray();
+  if(!save.decoUsed){ save.decoUsed=1; persist(); }
+}
+function exitDeco(){
+  if(deco.held){ if(fitsDeck(deco.held,deco.held)) placeHeld(true); else putAway(); }
+  deco.on=false; gridG.visible=false; footM.visible=false; decoEl.classList.add('hidden'); sfx.ui();
+}
+function holdNew(k){ if(deco.held) { if(fitsDeck(deco.held,deco.held)) placeHeld(true); else putAway(); }
+  const H=HULL(), e={k,c:0,r:0,ro:0}; if(DECOR[k].tank) e.fish=defaultTankFish();
+  // start in the first free spot, roughly centred
+  let best=null,bd=1e9; for(let r=0;r<H.rows;r++) for(let c=0;c<H.cols;c++){ e.c=c; e.r=r; if(fitsDeck(e,e)){ const d=Math.hypot(c-H.cols/2+.5,r-H.rows/2+.5); if(d<bd){bd=d;best=[c,r];} } }
+  if(best){ e.c=best[0]; e.r=best[1]; } else { e.c=0; e.r=0; }
+  deco.held=e; deco.orig=null; showHeld(); sfx.ui(); decoTray(); }
+function showHeld(){ if(deco.heldObj){ boat.decorG.remove(deco.heldObj); removeWhere(tankFish,t=>t.g===deco.heldObj); }
+  deco.heldObj=buildDecor(deco.held); boat.decorG.add(deco.heldObj); updHeld(); }
+function updHeld(){ const e=deco.held; if(!e) { footM.visible=false; return; } const [x,z]=cellCenter(e), [fw,fd]=footprint(e);
+  deco.heldObj.position.set(x,DECK_Y+.18,z); deco.heldObj.rotation.y=e.ro*Math.PI/2;
+  footM.visible=true; footM.position.set(x,DECK_Y+.02,z); footM.scale.set(fw*CELL-.05,1,fd*CELL-.05); footM.material.color.set(fitsDeck(e,e)?'#7fe0a0':'#ff7a6a'); }
+function placeHeld(quiet){ const e=deco.held; if(!e||!fitsDeck(e,e)){ sfx.miss(); const b=decoEl.querySelector('[data-a=place]'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); return; }
+  save.decor.push(e); persist(); boat.decorG.remove(deco.heldObj); deco.held=null; deco.heldObj=null; renderDecor(); footM.visible=false;
+  if(!quiet){ sfx.step(true); dust(boat.decorG.localToWorld(new THREE.Vector3(...[cellCenter(e)[0],DECK_Y,cellCenter(e)[1]])),4); } decoTray(); }
+function putAway(){ if(!deco.held) return; boat.decorG.remove(deco.heldObj); removeWhere(tankFish,t=>t.g===deco.heldObj); deco.held=null; deco.heldObj=null; footM.visible=false; persist(); sfx.ui(); decoTray(); }
+function pickUp(e){ removeWhere(save.decor,o=>o===e); renderDecor(); deco.held=e; deco.orig={...e}; showHeld(); sfx.ui(); decoTray(); }
+const _rc=new THREE.Raycaster(), _pl=new THREE.Plane(), _ndc=new THREE.Vector2(), _hit=new THREE.Vector3();
+function deckCell(e){ _ndc.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1); _rc.setFromCamera(_ndc,camera);
+  const up=new THREE.Vector3(0,1,0).transformDirection(boat.body.matrixWorld), p=boat.body.localToWorld(new THREE.Vector3(0,DECK_Y,0));
+  _pl.setFromNormalAndCoplanarPoint(up,p); if(!_rc.ray.intersectPlane(_pl,_hit)) return null;
+  const l=boat.body.worldToLocal(_hit.clone()), H=HULL(), x0=-H.cols*CELL/2, z0=H.zc-H.rows*CELL/2;
+  return {fc:(l.x-x0)/CELL, fr:(l.z-z0)/CELL}; }
+function decoDown(e){ const p=deckCell(e); if(!p) return;
+  const c=Math.floor(p.fc), r=Math.floor(p.fr);
+  if(!deco.held){ const hit=save.decor.find(o=>{ const [fw,fd]=footprint(o); return c>=o.c&&c<o.c+fw&&r>=o.r&&r<o.r+fd; }); if(hit){ pickUp(hit); deco.drag=true; } return; }
+  deco.drag=true; decoMove(e); }
+function decoMove(e){ if(!deco.drag||!deco.held) return; const p=deckCell(e); if(!p) return; const [fw,fd]=footprint(deco.held);
+  const H=HULL(), c=clamp(Math.round(p.fc-fw/2),0,H.cols-fw), r=clamp(Math.round(p.fr-fd/2),0,H.rows-fd);
+  if(c!==deco.held.c||r!==deco.held.r){ deco.held.c=c; deco.held.r=r; updHeld(); decoTray(); sfx.ui&&tone(880,.03,{type:'triangle',vol:.03}); } }
+decoEl.addEventListener('pointerdown',e=>e.stopPropagation());
+$('dDone').onclick=exitDeco;
+$('dtray').onclick=e=>{ const b=e.target.closest('.ditem'); if(b) holdNew(b.dataset.k); };
+$('dctl').onclick=e=>{ const b=e.target.closest('button'); if(!b||!deco.held) return; const a=b.dataset.a;
+  if(a==='rot'){ deco.held.ro=(deco.held.ro+1)%4; const H=HULL(), [fw,fd]=footprint(deco.held); deco.held.c=Math.min(deco.held.c,H.cols-fw); deco.held.r=Math.min(deco.held.r,H.rows-fd); updHeld(); decoTray(); sfx.ui(); }
+  if(a==='place') placeHeld(); if(a==='store') putAway(); if(a==='fish') openTankPicker(); };
+decoBtn.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); initAudio(); enterDeco(); });
+// ---- picking which fish live in a tank
+function defaultTankFish(){ return Object.entries(save.caught).filter(([id])=>{ const f=FISH.find(x=>x.id===id); return f&&f.shape!=='boot'; })
+  .sort((a,b)=>TIERS[FISH.find(f=>f.id===b[0]).tier].rank-TIERS[FISH.find(f=>f.id===a[0]).tier].rank).slice(0,3).map(([id,c])=>{ const v=c.v&&(c.v.golden?'golden':c.v.shimmer?'shimmer':''); return v?id+':'+v:id; }); }
+const pickEl=document.createElement('div'); pickEl.id='tankpick'; pickEl.className='sheet hidden'; document.body.appendChild(pickEl);
+pickEl.addEventListener('pointerdown',e=>{ e.stopPropagation(); if(e.target===pickEl) closePicker(); });
+function openTankPicker(){ const e=deco.held; e.fish=e.fish||[];
+  const opts=[]; for(const f of FISH){ const c=save.caught[f.id]; if(!c||f.shape==='boot') continue; opts.push(f.id); for(const v of ['shimmer','golden']) if(c.v&&c.v[v]) opts.push(f.id+':'+v); }
+  pickEl.innerHTML=`<div class="panel"><header><h2>Tank fish</h2><span class="sub">${e.fish.length}/4</span><button class="close" id="tpClose">${ICON2.check_fill}</button></header>
+    ${opts.length?`<div class="tpgrid">${opts.map(k=>{ const [id,v]=k.split(':'), f=FISH.find(x=>x.id===id), on=e.fish.includes(k);
+      return `<button class="tp ${on?'on':''}" data-k="${k}">${fishArt(f,false,v||null)}<span>${v?VARIANTS.find(x=>x.id===v).name+' ':''}${f.name}</span></button>`; }).join('')}</div>`:'<div class="empty">Catch some fish first!</div>'}</div>`;
+  pickEl.classList.remove('hidden');
+  $('tpClose').onclick=closePicker;
+  pickEl.querySelectorAll('.tp').forEach(b=>b.onclick=()=>{ const k=b.dataset.k, i=e.fish.indexOf(k);
+    if(i>=0) e.fish.splice(i,1); else if(e.fish.length<4) e.fish.push(k); else { sfx.miss(); return; }
+    sfx.ui(); openTankPicker(); showHeld(); });
+}
+function closePicker(){ pickEl.classList.add('hidden'); }
+// ---- walking around your own deck
+let deckPlat=null;
+function deckWorld(x,z){ return boat.body.localToWorld(new THREE.Vector3(x,DECK_Y,z)); }
+function buildDeckWalk(){
+  removeWhere(PLATS,p=>p.ch==='deck'); removeWhere(COLLIDE,c=>c.ch==='deck'); removeWhere(INTERACT,i=>i.ch==='deck');
+  const H=HULL(), z0=H.helm-.5, z1=H.zc+H.rows*CELL/2+.2, zc=(z0+z1)/2, hw=Math.min(H.cols*CELL/2+.15,H.W*.38), w=deckWorld(0,zc);
+  deckPlat={x:w.x,z:w.z,hw,hd:(z1-z0)/2,rot:boat.heading,y:w.y,c:Math.cos(boat.heading),s:Math.sin(boat.heading),ch:'deck'}; PLATS.push(deckPlat);
+  for(const {e} of decorObjs){ const D=DECOR[e.k]; const [x,z]=cellCenter(e), wp=deckWorld(x,z), [fw,fd]=footprint(e);
+    if(!D.flat) COLLIDE.push({x:wp.x,z:wp.z,r:Math.max(fw,fd)*CELL*.42,h:1.6,ch:'deck',base:wp.y});
+    if(D.sit) INTERACT.push({x:wp.x,z:wp.z,r:1.0,label:'Sit',hint:D.name,act:'sit',y:wp.y,ch:'deck',e});
+    if(D.tank) INTERACT.push({x:wp.x,z:wp.z,r:1.3,label:'Feed',hint:'aquarium',act:'feed',y:wp.y,ch:'deck',e}); }
+  const hp=deckWorld(0,H.helm); INTERACT.push({x:hp.x,z:hp.z,r:.95,label:'Take helm',hint:'',act:'helm',y:hp.y,ch:'deck'});
+}
+function deckSpot(){ const H=HULL(); for(const [x,z] of [[0,H.helm+.6],[0,H.zc],[CELL,H.zc],[-CELL,H.zc]]){ const w=deckWorld(x,z); if(!blockedAt(w.x,w.z,w.y)) return w; } return deckWorld(0,H.helm+.6); }
+function walkDeck(){
+  walker.onDeck=true; buildDeckWalk(); const L=deckSpot();
+  W.visible=true; boat.ch.visible=false; walker.on=true; walker.y=L.y; walker.vx=walker.vz=0; walker.face=boat.heading; walker.reach=0;
+  boat.vel.x=boat.vel.z=0; boat.angVel=0;
+  hop(seatPos(),L,.4,()=>{ walker.pos.copy(L); sfx.step(true); }); sfx.hop(); setBtn('hidden');
+}
+function takeHelm(){ hop(walker.pos.clone().setY(walker.y),seatPos(),.4,()=>{ W.visible=false; boat.ch.visible=true; walker.on=false; walker.onDeck=false; walker.sit=null; clearDeckWalk(); }); sfx.hop(); }
+function leaveDeckInstant(){ W.visible=false; boat.ch.visible=true; walker.on=false; walker.onDeck=false; walker.sit=null; walker.jump=null; clearDeckWalk(); }
+function clearDeckWalk(){ removeWhere(PLATS,p=>p.ch==='deck'); removeWhere(COLLIDE,c=>c.ch==='deck'); removeWhere(INTERACT,i=>i.ch==='deck'); deckPlat=null; }
+let feedT=0;
+function deckInteract(it){
+  if(it.act==='helm'){ takeHelm(); return true; }
+  if(it.act==='sit'){ const D=DECOR[it.e.k]; walker.sit={x:it.x,z:it.z,y:it.y+(D.name==='Moon Chair'?.08:.22),face:boat.heading+it.e.ro*Math.PI/2+Math.PI}; walker.vx=walker.vz=0; sfx.step(true);
+    say(['ahh, lovely','what a view','nice and cozy'][Math.floor(Math.random()*3)],new THREE.Vector3(it.x,it.y+2.2,it.z),{cls:'soft',dur:2}); return true; }
+  if(it.act==='feed'){ feedT=3; sfx.plop(); for(let i=0;i<8;i++) dust(new THREE.Vector3(it.x+R(-.3,.3),it.y+.7,it.z+R(-.2,.2)),1);
+    say('the fish are happy',new THREE.Vector3(it.x,it.y+2,it.z),{cls:'soft',dur:2}); return true; }
+  return false;
+}
+function updateHouse(dt,t){
+  // tank fish swim back and forth
+  for(const F of tankFish){ const T=F.T; F.ph+=dt*F.sp*(feedT>0?2.2:1);
+    const x=Math.sin(F.ph)*T.w*.36, y=.2+T.h*(.25+.18*Math.sin(F.ph*1.7+F.sp))+(feedT>0?.12:0), z=Math.cos(F.ph*.8)*T.d*.22;
+    const dx=Math.cos(F.ph)*.36*T.w; F.m.position.set(x,y+.08,z); F.m.rotation.y=dx>0?Math.PI/2:-Math.PI/2; F.m.rotation.z=Math.sin(t*6+F.ph)*.15; }
+  if(feedT>0) feedT-=dt;
+  // keep the deck walkable surface riding the boat's bob
+  if(deckPlat){ deckPlat.y=boat.g.position.y+DECK_Y; for(const it of INTERACT) if(it.ch==='deck') it.y=deckPlat.y; }
+  if(deco.held&&deco.heldObj) deco.heldObj.position.y=DECK_Y+.18+Math.sin(t*4)*.04;
+  // show the decorate button when you're stopped
+  const show=canDecorate()&&!deco.on&&$('catch').classList.contains('hidden');
+  decoBtn.classList.toggle('hidden',!show); decoBtn.classList.toggle('pulse',show&&!save.decoUsed);
+}
+
+setHull();
+
 // ---------------------------------------------------------------- loop
 const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
 const CAM_DIR=new THREE.Vector3(0,.78,.63).normalize();
@@ -2480,7 +2774,9 @@ function camDist(){
 function placeCamera(snap,dt){
   const sf=clamp(boat.vf/MAX_SPEED,0,1.6);
   const look=walker.on||walker.jump? new THREE.Vector3(W.position.x,walker.on?walker.y*.5:0,W.position.z) : boat.pos.clone(); if(!walker.on&&!walker.jump){ look.x+=boat.vel.x*.42; look.z+=boat.vel.z*.42; }
-  const want=look.clone().addScaledVector(CAM_DIR,camDist()*(1+sf*.1+boostF*.08)*camZoom);
+  if(editK>.001){ look.lerp(boat.body.localToWorld(new THREE.Vector3(0,DECK_Y,HULL().zc-HULL().L*.16)),editK); }
+  const dir=editK>.001?CAM_DIR.clone().lerp(new THREE.Vector3(-Math.sin(boat.heading)*.4,1,-Math.cos(boat.heading)*.4).normalize(),editK).normalize():CAM_DIR;
+  const want=look.clone().addScaledVector(dir,camDist()*(1+sf*.1+boostF*.08)*camZoom);
   if(snap){ camPos.copy(want); camLook.copy(look); }
   else{ const k=1-Math.exp(-dt*2.4); camPos.lerp(want,k); camLook.lerp(look,1-Math.exp(-dt*3.2)); }
   camera.position.copy(camPos);
@@ -2522,7 +2818,7 @@ function frame(now){
 
   // ---------- sailing
   const rawInp = started ? inputVec() : {x:0,z:0,m:0};
-  const ashore = walker.on||!!walker.jump;
+  const ashore = walker.on||!!walker.jump||deco.on;
   const inp = ashore ? {x:0,z:0,m:0} : rawInp;
   updateWalker(dt,rawInp,t);
   const idle = fish.state==='idle';
@@ -2553,7 +2849,7 @@ function frame(now){
   // collisions: soft bounce off sand and solids
   for(const list of [SAND,SOLID]) for(const c of list){
     const dx=boat.pos.x-c.x, dz=boat.pos.z-c.z; if(Math.abs(dx)>c.r+3||Math.abs(dz)>c.r+3) continue;
-    const d=Math.hypot(dx,dz), min=c.r+1.3; if(d>=min||d<1e-4) continue;
+    const d=Math.hypot(dx,dz), min=c.r+HULL().R; if(d>=min||d<1e-4) continue;
     const nx=dx/d, nz=dz/d; boat.pos.x=c.x+nx*min; boat.pos.z=c.z+nz*min;
     const vn=boat.vel.x*nx+boat.vel.z*nz;
     if(vn<0){ boat.vel.x-=nx*vn*1.45; boat.vel.z-=nz*vn*1.45; boat.vel.x*=.85; boat.vel.z*=.85; if(-vn>2.5) bump(boat.pos.x-nx*1.2,boat.pos.z-nz*1.2,-vn); }
@@ -2693,6 +2989,7 @@ function frame(now){
   water.position.set(Math.round(boat.pos.x/cell)*cell,0,Math.round(boat.pos.z/cell)*cell);
 
   placeCamera(false,dt);
+  updateHouse(dt,t);
   updateUI(dt); shellTick(dt); updateActions(dt); updateDay(dt,t); updateBottles(dt,t);
   saveT-=dt; if(saveT<=0){ saveT=10; save.ph=dayPh; persist(); }
   sun.position.copy(boat.pos).add(SUN_OFF); sun.target.position.copy(boat.pos);
