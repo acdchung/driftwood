@@ -100,6 +100,44 @@
   #catch .meta svg{width:17px;height:17px}
   #catch .meta .worth{display:inline-flex;align-items:center;gap:3px;color:#ffd2bd} #catch .meta .worth svg{width:19px;height:19px}
   #catch .meta .mdl{display:inline-block;vertical-align:-2px} #catch .meta .note{color:#ffd0c4}
+  /* gentle reveal: glow + rays scale with rarity */
+  #catch{--glow:rgba(255,236,190,.38);--rays:.6}
+  #catch{background:radial-gradient(circle at 50% 45%,var(--glow),rgba(255,236,190,0) 46%)}
+  #catch .rays{opacity:var(--rays)}
+  #catch .artw{position:relative}
+  #catch .stamp{position:absolute;top:-6px;right:-26px;padding:5px 12px 4px;border-radius:10px;background:#ff7a59;color:#fff;font-size:17px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+    box-shadow:0 0 0 3px #fff,0 6px 14px rgba(6,36,58,.3);transform:rotate(-12deg);opacity:0;animation:stamp .45s .5s cubic-bezier(.2,1.6,.4,1) forwards;text-shadow:none}
+  #catch .stamp.var{background:linear-gradient(135deg,#7fd8e8,#b9a6ff);}
+  #catch .stamp.gold{background:linear-gradient(135deg,#f6c453,#e89a2c)}
+  @keyframes stamp{from{opacity:0;transform:rotate(-12deg) scale(2.4)}to{opacity:1;transform:rotate(-12deg) scale(1)}}
+  #catch .vlabel{position:relative;margin-top:14px;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#d9fbff;text-shadow:var(--outline);display:inline-flex;gap:5px;align-items:center}
+  #catch .vlabel svg{width:16px;height:16px}
+  #catch .vlabel.golden{color:#ffe08a}
+  #catch .vlabel+.tier{margin-top:2px}
+  #catch .pb{color:#ffe08a;display:inline-flex;align-items:center;gap:4px;font-weight:800}
+  #catch .twinkles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  #catch .twinkles i{position:absolute;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,#fff 0 25%,rgba(255,250,220,.6) 40%,rgba(255,250,220,0) 70%);opacity:0;animation:twinkle 2.6s ease-in-out infinite}
+  @keyframes twinkle{0%{opacity:0;transform:translateY(10px) scale(.4)}30%{opacity:1}100%{opacity:0;transform:translateY(-60px) scale(1.1)}}
+  .fsv.shimmer svg{filter:drop-shadow(0 0 6px rgba(190,240,255,.9))}
+  .fsv.golden svg{filter:drop-shadow(0 0 6px rgba(255,214,110,.9))}
+  /* journal extras */
+  .slot{position:relative}
+  .slot .b{position:absolute;top:7px;right:30px;display:flex;gap:3px;align-items:center}
+  .slot .b .st{width:16px;height:16px;color:#f2b632} .slot .b .st svg{width:16px;height:16px;height:16px}
+  .slot .vd{display:flex;gap:4px;justify-content:center;margin-top:5px}
+  .slot .vd i{width:7px;height:7px;border-radius:50%;background:#e6dccb}
+  .slot .vd i.shimmer{background:#7fd8e8} .slot .vd i.golden{background:#f2b632}
+  .slot .nw{position:absolute;top:-7px;left:-5px;background:#ff7a59;color:#fff;font-size:10px;font-weight:800;letter-spacing:.8px;padding:2px 7px;border-radius:999px;text-transform:uppercase;box-shadow:0 0 0 2px #fff;transform:rotate(-6deg)}
+  .vrow{display:flex;gap:10px;margin:14px 0 4px}
+  .vrow>div{flex:1;background:#fff;border-radius:12px;padding:8px;text-align:center;box-shadow:0 2px 0 #efe2c6;font-size:12.5px;font-weight:700}
+  .vrow svg{height:38px;margin:0 auto;display:block}
+  .vrow small{display:block;color:var(--soft);font-weight:600;font-size:11px}
+  .mastery{margin:14px 6px 2px}
+  .mastery .top{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px}
+  .mastery .top span{display:inline-flex;align-items:center;gap:5px} .mastery .top svg{width:16px;height:16px;color:#f2b632}
+  .mastery .bar{height:8px;border-radius:4px;background:#eadfca;overflow:hidden} .mastery .bar i{display:block;height:100%;background:linear-gradient(90deg,#ffb36b,#ff7a59);border-radius:4px}
+  .mnote{margin:12px 6px 0;background:#fffaf0;border:2px dashed #ecd9b4;border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.4;color:#5a4634}
+  .mnote b{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#c4643f;margin-bottom:3px}
 
   /* journal: a menu, so it keeps a surface */
   #mapv{position:fixed;inset:0;z-index:9;display:grid;place-items:center;background:rgba(8,36,56,.4);transition:opacity .25s;padding:calc(max(14px,env(safe-area-inset-top)) + 72px) 0 max(24px,env(safe-area-inset-bottom))}
@@ -1089,11 +1127,44 @@ const FISH=[
   {id:'angler',  name:'Abyssal Angler', color:'#2a2f4a',belly:'#4a5277',tier:'Exotic',   size:[40,60],  where:'deep',    shape:'angler', scale:1.2, time:'night'},
   {id:'boot',    name:'Soggy Boot',     color:'#7a5c48',tier:'Junk',size:[27,30],where:'any',shape:'boot'},
 ];
+// rare looks a fish can come in; each species has its own set to find
+const VARIANTS=[
+  {id:'shimmer',name:'Shimmer',chance:1/22,mult:3},
+  {id:'golden', name:'Golden', chance:1/110,mult:8},
+];
+const variantsFor=f=>f.shape==='boot'?VARIANTS.filter(v=>v.id==='golden'):VARIANTS;
+// catch this many of a species to master it (reveals an angler's note + a shell bonus)
+const MASTERY_N={Common:10,Rare:6,Epic:4,Legendary:3,Exotic:2,Junk:5};
 let save={caught:{}};
-try{ const s=JSON.parse(localStorage.getItem('driftwood-v1')); if(s&&s.caught) save=s; }catch(e){}
+try{ const s=JSON.parse(localStorage.getItem('driftwood-v2')); if(s&&s.caught) save=s; }catch(e){}
 save.visited=save.visited||{};
 for(const k in save.caught) if(!FISH.some(f=>f.id===k)) delete save.caught[k];
-function persist(){ try{ localStorage.setItem('driftwood-v1',JSON.stringify(save)); }catch(e){} }
+function persist(){ try{ localStorage.setItem('driftwood-v2',JSON.stringify(save)); }catch(e){} }
+// recolour a fish for its variant (used for the 2D art and the 3D fish that flies onto the deck)
+const _vc=new THREE.Color();
+function shiftHex(h,dh,dl){ _vc.set(h); _vc.offsetHSL(dh,0,dl); return '#'+_vc.getHexString(); }
+function variantFish(f,v){
+  if(!v) return f;
+  if(v==='golden') return {...f,color:'#e9b949',belly:'#fff0b8',stripes:f.stripes&&'#fff6d6',spots:f.spots&&'#fff6d6',_v:v};
+  if(f.color==='prism') return {...f,color:'#dfeeff',belly:'#ffffff',_v:v};
+  return {...f,color:shiftHex(f.color,.42,.06),belly:shiftHex(f.belly||f.color,.42,.04),stripes:f.stripes&&shiftHex(f.stripes,.42,0),spots:f.spots&&shiftHex(f.spots,.42,0),_v:v};
+}
+function fishArt(f,unknown,v){
+  if(unknown||!v) return fishSVG(f,unknown);
+  const sp=v==='golden'?'#fff6c8':'#ffffff';
+  const twk=`<g fill="${sp}"><path d="M82 8l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M14 44l1.4 3.4 3.4 1.4-3.4 1.4-1.4 3.4-1.4-3.4-3.4-1.4 3.4-1.4z"/><circle cx="66" cy="50" r="1.8"/></g>`;
+  const svg=fishSVG(variantFish(f,v),false); const k=svg.lastIndexOf('</svg>');
+  return `<span class="fsv ${v}">${svg.slice(0,k)+twk+svg.slice(k)}</span>`;
+}
+function rollVariant(f){
+  const boost=1+.25*lvl('bait');
+  for(const v of variantsFor(f).slice().reverse()) if(Math.random()<v.chance*boost) return v.id;
+  return null;
+}
+// tiny haptic tick: vibrate on Android; on iPhone, toggling a hidden switch gives a light tap (iOS 18+, only from a tap)
+const _hap=(()=>{ const l=document.createElement('label'); l.style.cssText='position:fixed;left:-99px;top:0;opacity:0;pointer-events:none';
+  const i=document.createElement('input'); i.type='checkbox'; i.setAttribute('switch',''); l.appendChild(i); document.body.appendChild(l); return l; })();
+function haptic(ms=15){ try{ if(navigator.vibrate){ navigator.vibrate(ms); return; } _hap.click(); }catch(e){} }
 
 let svgN=0;
 function fishSVG(f,unknown){
@@ -1119,11 +1190,14 @@ function fishSVG(f,unknown){
 function tagHTML(tier){ const T=TIERS[tier]; return `<span class="tag" style="background:${T.bg};color:${T.fg}">${tier}</span>`; }
 function updateCount(){ const n=Object.keys(save.caught).length; $('count').textContent=n; $('countOf').textContent='/ '+FISH.length; $('jcount').textContent=`${n} of ${FISH.length}`; }
 function renderJournal(){
+  const vTot=FISH.reduce((a,f)=>a+variantsFor(f).length,0), vGot=FISH.reduce((a,f)=>a+Object.keys((save.caught[f.id]||{}).v||{}).length,0), mGot=FISH.filter(f=>(save.caught[f.id]||{}).m).length;
   $('jtiers').innerHTML=['Common','Rare','Epic','Legendary','Exotic'].map(t=>{ const all=tierFish(t), n=all.filter(f=>save.caught[f.id]).length, T=TIERS[t];
-    return `<span style="background:${T.bg};color:${T.fg}">${n===all.length?ICON2.check_fill:''}${t} ${n}/${all.length}</span>`; }).join('');
+    return `<span style="background:${T.bg};color:${T.fg}">${n===all.length?ICON2.check_fill:''}${t} ${n}/${all.length}</span>`; }).join('')
+    +`<span style="background:#e4f7fa;color:#2b7f8f">${ICON2.sparkles_fill}Variants ${vGot}/${vTot}</span><span style="background:#fff3d6;color:#a8670a">${ICON.star_fill}Mastered ${mGot}/${FISH.length}</span>`;
   $('jgrid').innerHTML=FISH.map(f=>{ const c=save.caught[f.id];
     const hint=(f.where==='deep'?'Open water':f.where==='shallow'?'Near islands':'Anywhere')+(f.time==='night'?' · night':'');
-    return `<div class="slot ${c?'':'unknown'}" data-id="${f.id}">${c?medalSVG(medalOf(f,c.best)):''}${fishSVG(f,!c)}<div class="n">${c?f.name:'???'}</div>${tagHTML(f.tier)}<div class="d">${c?`best ${f.shape==='boot'?'—':c.best+' cm'} · ×${c.n}`:hint}</div></div>`; }).join('');
+    const vd=c?`<div class="vd">${variantsFor(f).map(v=>`<i class="${c.v&&c.v[v.id]?v.id:''}"></i>`).join('')}</div>`:'';
+    return `<div class="slot ${c?'':'unknown'}" data-id="${f.id}">${c&&!c.seen?'<span class="nw">new</span>':''}${c&&c.m?`<span class="b"><span class="st">${ICON.star_fill}</span></span>`:''}${c?medalSVG(medalOf(f,c.best)):''}${fishSVG(f,!c)}<div class="n">${c?f.name:'???'}</div>${tagHTML(f.tier)}<div class="d">${c?`best ${f.shape==='boot'?'—':c.best+' cm'} · ×${c.n}`:hint}</div>${vd}</div>`; }).join('');
   $('jdetail').classList.add('hidden'); $('jlist').classList.remove('hidden');
   if(typeof showJTab==='function'){ jTab='fish'; showJTab(); }
 }
@@ -1154,6 +1228,24 @@ const FLAVOR={
   boot:'Someone, somewhere, is walking around with one wet foot.'
 };
 const BASE_PRICE={Common:6,Rare:22,Epic:70,Legendary:220,Exotic:650,Junk:1};
+const MASTER_NOTE={
+  minnow:'Minnows school tighter when a storm is coming. Watch them and you will never get caught in the rain.',
+  snapper:'The brightest snappers bite in the last ten minutes of sunset. Old sailors call it the orange hour.',
+  goby:'A goby will guard the same pebble for its whole life. Some have been seen rearranging them.',
+  puffer:'Puffers only puff about three times a day. Choose your surprises wisely, little one.',
+  angel:'Angelfish pair up for life and swim the reef in slow, matching laps.',
+  mackerel:'On full moons, mackerel rise in silver rings you can see from the lighthouse.',
+  sailfin:'A sailfin raises its fin to cool off, and to show off. Mostly to show off.',
+  ray:'Rays follow boats out of curiosity. If one is shadowing you, try humming.',
+  jelly:'Moon jellies have no brain at all, and still always seem to find the calmest water.',
+  eel:'Midnight eels sleep coiled in sunken hulls. Every wreck has a tenant.',
+  squid:'Glow squid flash in patterns. Sailors swear the patterns repeat every seven nights.',
+  koi:'Lantern koi were said to guide lost boats home. Maybe they still do.',
+  marlin:'The Golden Marlin has been the hero of so many sailor stories that nobody can agree how big it really gets.',
+  prism:'Hold a Prism Fish up to the sun and it throws a tiny rainbow on the deck.',
+  angler:'The angler\u2019s light is made by glowing bacteria that live with it. Best roommates in the sea.',
+  boot:'You have now fished up enough boots for a very soggy marching band.'
+};
 const UPGRADES=[
   {id:'rod',   name:'Sturdy Rod',    desc:'Wider hook band',            icon:'tool_fill',   costs:[40,150,420]},
   {id:'line',  name:'Lucky Line',    desc:'Quicker bites, fewer duds',  icon:'sparkles_fill',costs:[45,160,460]},
@@ -1171,7 +1263,7 @@ save.shells=save.shells||0; save.cooler=save.cooler||[]; save.up=save.up||{}; sa
 const lvl=id=>save.up[id]||0;
 const coolerCap=()=>UPGRADES[4].caps[lvl('cooler')];
 function sizeNorm(f,size){ const [a,b]=f.size; return clamp((size-a)/Math.max(1,b-a),0,1); }
-function priceOf(f,size,perfect){ return Math.max(1,Math.round(BASE_PRICE[f.tier]*(.75+.6*sizeNorm(f,size))*(perfect?1.15:1))); }
+function priceOf(f,size,perfect,v){ const vm=v?VARIANTS.find(x=>x.id===v).mult:1; return Math.max(1,Math.round(BASE_PRICE[f.tier]*(.75+.6*sizeNorm(f,size))*(perfect?1.15:1)*vm)); }
 const MEDALS=[['gold',.92,'#f2b632'],['silver',.75,'#aab7c2'],['bronze',.5,'#d08a4f']];
 function medalOf(f,size){ if(f.shape==='boot') return null; const n=sizeNorm(f,size); for(const m of MEDALS) if(n>=m[1]) return m; return null; }
 function medalSVG(m,cls='m'){ return m?`<span class="${cls}" style="color:${m[2]}">${ICON2.medal_fill}</span>`:''; }
@@ -1218,9 +1310,9 @@ function renderShop(){
   const note=walker.shop?'':`<div class="shopnote">You can browse from anywhere, but to sell and buy you'll need to visit a Trading Post: Home Harbour or Stilt Village.</div>`;
   if(shopTab==='sell'){
     const items=save.cooler.map((c,i)=>({...c,f:FISH.find(f=>f.id===c.id),i})).filter(x=>x.f);
-    const total=items.reduce((s,x)=>s+priceOf(x.f,x.size,x.perfect),0);
+    const total=items.reduce((s,x)=>s+priceOf(x.f,x.size,x.perfect,x.v),0);
     body.innerHTML=note+`<div class="cap"><span>Cooler</span><span>${items.length} / ${coolerCap()}</span></div>`+
-      (items.length? items.map(x=>`<div class="row" data-i="${x.i}"><div class="f">${fishSVG(x.f,false)}</div><div class="t"><b>${x.f.name}</b><span>${x.f.shape==='boot'?'a boot':x.size+' cm'}${x.perfect?' · perfect':''}</span></div>${medalSVG(medalOf(x.f,x.size),'medal')}<span class="price">${sh}${priceOf(x.f,x.size,x.perfect)}</span></div>`).join('')
+      (items.length? items.map(x=>`<div class="row" data-i="${x.i}"><div class="f">${fishArt(x.f,false,x.v)}</div><div class="t"><b>${x.v?VARIANTS.find(v=>v.id===x.v).name+' ':''}${x.f.name}</b><span>${x.f.shape==='boot'?'a boot':x.size+' cm'}${x.perfect?' · perfect':''}</span></div>${medalSVG(medalOf(x.f,x.size),'medal')}<span class="price">${sh}${priceOf(x.f,x.size,x.perfect,x.v)}</span></div>`).join('')
         +`<button class="btn big" id="sellAll">Sell all<span class="price" style="color:#fff">${sh}${total}</span></button>`
       : `<div class="empty">Your cooler is empty.<br>Go catch something!</div>`);
     const b=$('sellAll'); if(b) b.onclick=sellAll;
@@ -1241,7 +1333,7 @@ function renderShop(){
 function sellAll(){
   if(!walker.shop){ sfx.miss(); return; }
   const items=save.cooler.map(c=>({...c,f:FISH.find(f=>f.id===c.id)})).filter(x=>x.f); if(!items.length) return;
-  const total=items.reduce((s,x)=>s+priceOf(x.f,x.size,x.perfect),0);
+  const total=items.reduce((s,x)=>s+priceOf(x.f,x.size,x.perfect,x.v),0);
   document.querySelectorAll('#sbody .row').forEach((r,i)=>setTimeout(()=>r.classList.add('gone'),i*60));
   sfx.coins(Math.min(12,items.length+2));
   setTimeout(()=>{ save.cooler=[]; save.shells+=total; persist(); updateWallet(); bumpEl('shellsC'); renderShop(); }, Math.min(900,items.length*60+250));
@@ -1266,6 +1358,11 @@ function showDetail(id){
   const f=FISH.find(x=>x.id===id), c=save.caught[id];
   const [a,b]=f.size, lo=priceOf(f,a,false), hi=priceOf(f,b,true), m=c?medalOf(f,c.best):null;
   const where=(f.where==='deep'?'Open water':f.where==='shallow'?'Near islands':'Anywhere')+(f.time==='night'?', night':'');
+  if(c&&!c.seen){ c.seen=1; persist(); }
+  const N=MASTERY_N[f.tier], vs=variantsFor(f);
+  const vrow=c?`<div class="vrow">${vs.map(v=>{ const got=c.v&&c.v[v.id]; return `<div>${got?fishArt(f,false,v.id):fishSVG(f,true)}${got?v.name:'???'}<small>${got?'found':v.id==='golden'?'very rare':'rare'}</small></div>`; }).join('')}</div>`:'';
+  const mast=c?`<div class="mastery"><div class="top"><span>${c.m?ICON.star_fill+' Mastered':'Mastery'}</span><span>${Math.min(c.n,N)} / ${N}</span></div><div class="bar"><i style="width:${Math.min(1,c.n/N)*100}%"></i></div></div>`
+    +(c.m?`<div class="mnote"><b>Angler's note</b>${MASTER_NOTE[id]}</div>`:''):'';
   $('jdetail').innerHTML=`<div class="detail"><button class="back" id="jback">${ICON2.arrow_left_fill}All fish</button>
     <div class="art">${fishSVG(f,!c)}</div><h3>${c?f.name:'???'}</h3>${tagHTML(f.tier)}
     <p class="flav">${c?FLAVOR[id]:'You haven’t caught this one yet.'}</p>
@@ -1276,9 +1373,10 @@ function showDetail(id){
       <div><small>Found</small><b>${where}</b></div>
     </div>
     ${c&&f.shape!=='boot'?`<div class="sizebar"><i style="left:${sizeNorm(f,c.best)*100}%"></i></div><div class="sizelbl"><span>${a} cm</span><span>bronze · silver · gold</span><span>${b} cm</span></div>`:''}
+    ${vrow}${mast}
   </div>`;
   $('jlist').classList.add('hidden'); $('jdetail').classList.remove('hidden');
-  $('jback').onclick=()=>{ $('jdetail').classList.add('hidden'); $('jlist').classList.remove('hidden'); };
+  $('jback').onclick=()=>{ renderJournal(); };
 }
 $('jgrid').addEventListener('click',e=>{ const sl=e.target.closest('.slot'); if(sl) showDetail(sl.dataset.id); });
 
@@ -1323,6 +1421,7 @@ const sfx={
   catch(rank=0,isNew){ [523,659,784,1047].forEach((f,i)=>tone(f,.4,{type:'triangle',vol:.13,delay:i*.08})); if(rank>=2||isNew) [1319,1568].forEach((f,i)=>tone(f,.6,{type:'sine',vol:.09,delay:.35+i*.1})); if(rank>=3) [1760,2093,2637].forEach((f,i)=>tone(f,.8,{type:'sine',vol:.07,delay:.6+i*.09})); },
   miss(){ tone(392,.22,{type:'triangle',vol:.12}); tone(311,.35,{type:'triangle',vol:.12,delay:.15}); },
   ui(){ tone(660,.07,{type:'triangle',vol:.06}); },
+  shimmer(gold){ const base=gold?[1047,1319,1568,2093,2637]:[1175,1480,1760,2349]; base.forEach((f,i)=>tone(f,.9,{type:'sine',vol:.045,delay:.5+i*.11})); },
   coins(n){ for(let i=0;i<n;i++) tone(1200+Math.random()*900,.12,{type:'triangle',vol:.07,delay:i*.06}); tone(1568,.4,{type:'sine',vol:.08,delay:n*.06}); },
   hop(){ tone(520,.18,{to:900,type:'triangle',vol:.08}); },
   step(wood){ noiseBurst(.06,wood?700:1800,wood?.09:.04); if(wood) tone(180,.06,{vol:.04}); },
@@ -1378,17 +1477,24 @@ function setBtn(mode){
 }
 setBtn('hidden');
 let catchTimer=0;
-function showCatch(f,size,isNew,perfect,full){
-  const meta=[];
-  if(isNew) meta.push(`<span class="hl">${ICON.sparkles_fill}new!</span>`);
-  const m=medalOf(f,size);
+const GLOWS={Common:['rgba(255,236,190,.30)',.45],Rare:['rgba(190,226,255,.38)',.6],Epic:['rgba(214,196,255,.42)',.75],Legendary:['rgba(255,214,130,.5)',.9],Exotic:['rgba(255,190,232,.5)',1],Junk:['rgba(236,214,196,.25)',.35]};
+function showCatch(f,size,o){
+  const {isNew,isPB,newVar,variant:v,perfect,full}=o;
+  const meta=[], m=medalOf(f,size), vd=v&&VARIANTS.find(x=>x.id===v);
   meta.push(`<span>${f.shape==='boot'?'well… it\'s a boot':size+' cm'}${m?` <span class="mdl" style="color:${m[2]}">${ICON2.medal_fill}</span>`:''}</span>`);
+  if(isPB) meta.push(`<span class="pb">${ICON2.medal_fill}new best!</span>`);
   if(perfect) meta.push(`<span class="hl">${ICON.star_fill}perfect</span>`);
-  meta.push(full?`<span class="note">cooler full · released</span>`:`<span class="worth">${ICON2.shell}${priceOf(f,size,perfect)}</span>`);
-  $('catch').innerHTML=`<div class="rays"></div><div class="art">${fishSVG(f,false)}</div>
+  meta.push(full?`<span class="note">cooler full · released</span>`:`<span class="worth">${ICON2.shell}${priceOf(f,size,perfect,v)}</span>`);
+  const stamp=isNew?`<div class="stamp">New!</div>`:newVar?`<div class="stamp ${v==='golden'?'gold':'var'}">New look!</div>`:'';
+  const rank=TIERS[f.tier].rank, nT=v?14:rank>=1?4+rank*2:0;
+  const tw=nT?`<div class="twinkles">${Array.from({length:nT},(_,i)=>`<i style="left:${30+Math.random()*40}%;top:${30+Math.random()*30}%;animation-delay:${(i*.37)%2.6}s;${v==='golden'?'filter:sepia(1) saturate(4)':''}"></i>`).join('')}</div>`:'';
+  const [g,r]=v==='golden'?['rgba(255,214,120,.55)',1]:v?['rgba(190,245,255,.5)',.95]:GLOWS[f.tier];
+  const el=$('catch'); el.style.setProperty('--glow',g); el.style.setProperty('--rays',r);
+  el.innerHTML=`<div class="rays"></div>${tw}<div class="art"><div class="artw">${fishArt(f,false,v)}${stamp}</div></div>
+    ${vd?`<div class="vlabel ${v}">${ICON2.sparkles_fill}${vd.name}</div>`:''}
     <div class="tier ${f.tier==='Exotic'?'exotic':''}" style="color:${TIER_TEXT[f.tier]}">${f.tier}</div>
     <div class="nm">${f.name}</div><div class="meta">${meta.join('')}</div>`;
-  $('catch').classList.remove('hidden'); catchTimer=3.4;
+  el.classList.remove('hidden'); catchTimer=(isNew||newVar||v||rank>=3)?4.6:3.4;
   bumpEl('counter');
 }
 $('catch').addEventListener('pointerdown',()=>{ $('catch').classList.add('hidden'); catchTimer=0; });
@@ -1542,7 +1648,7 @@ function onAction(){
   else if(fish.state==='bite') judge();
 }
 function cast(){
-  const s=nearSpot; fish.spot=s; fish.sp=pickSpecies(s); fish.state='casting'; fish.t=0;
+  const s=nearSpot; fish.spot=s; fish.sp=pickSpecies(s); fish.variant=rollVariant(fish.sp); fish.state='casting'; fish.t=0;
   // some casts just never get a bite
   const ll=lvl('line'); fish.noBite = Math.random() < (s.deep?.24:.2)*(1-.28*ll);
   // mostly a few seconds, occasionally a long wait
@@ -1561,11 +1667,11 @@ function endFishing(){
 function startHook(){
   const T=TIERS[fish.sp.tier];
   fish.state='bite'; fish.t=0;
-  fish.win=T.win*R(.9,1.1);
+  fish.win=T.win*R(.9,1.1)*(fish.variant?.88:1);
   fish.mid = T.hooks>1 ? R(.3,.48) : .4;   // multi-hook fish move the band around
-  const W=T.width*(1+.13*lvl('rod')); fish.lo=fish.mid-W/2; fish.hi=fish.mid+W/2;
+  const W=T.width*(1+.13*lvl('rod'))*(fish.variant?.85:1); fish.lo=fish.mid-W/2; fish.hi=fish.mid+W/2;
   const D=180*fish.hi, bw=180*(fish.hi-fish.lo)/2;
-  Object.assign(reelTarget.style,{width:D+'px',height:D+'px',margin:`${-D/2}px 0 0 ${-D/2}px`,borderWidth:bw+'px',borderColor:T.band});
+  Object.assign(reelTarget.style,{width:D+'px',height:D+'px',margin:`${-D/2}px 0 0 ${-D/2}px`,borderWidth:bw+'px',borderColor:fish.variant==='golden'?'#ffd36b':fish.variant?'#bff3ff':T.band});
   reelBang.textContent = T.hooks>1 ? `${fish.hook+1}/${T.hooks}` : '!';
   $('ring').style.transform='scale(1)';
   $('reel').classList.remove('hidden'); setBtn('hook');
@@ -1574,7 +1680,7 @@ function judge(){
   const s=1-fish.t/fish.win, T=TIERS[fish.sp.tier];
   if(s>=fish.lo && s<=fish.hi){
     fish.perfectAll = fish.perfectAll && Math.abs(s-fish.mid) < (fish.hi-fish.lo)*.22;
-    fish.hook++;
+    fish.hook++; haptic(fish.hook<T.hooks?12:25);
     if(fish.hook<T.hooks){
       fish.state='between'; fish.t=0; $('reel').classList.add('hidden');
       splash(fish.bob,8,.6); sfx.hookHit(fish.hook); say(fish.hook===T.hooks-1?'one more!':'keep going!',fish.bob,{cls:'gold',dur:1,rise:0,dy:125}); 
@@ -1584,7 +1690,7 @@ function judge(){
     fish.state='landing'; fish.t=0; fish.perfect=fish.perfectAll;
     fish.from.copy(fish.bob);
     splash(fish.bob,18+T.rank*6,1.1+T.rank*.15); sfx.reel();
-    fish.flyer=makeFlyer(fish.sp); scene.add(fish.flyer);
+    fish.flyer=makeFlyer(variantFish(fish.sp,fish.variant)); scene.add(fish.flyer);
   } else {
     const early=s>fish.hi;
     endFishing(); sfx.miss();
@@ -1625,14 +1731,22 @@ function makeFlyer(f){
 function landCatch(){
   const f=fish.sp; const [a,b]=f.size;
   const size=Math.round(fish.perfect? lerp(a+(b-a)*.7,b,Math.random()) : lerp(a,a+(b-a)*.8,Math.random()));
-  const prev=save.caught[f.id]; const isNew=!prev;
+  const prev=save.caught[f.id]; const isNew=!prev, v=fish.variant||null;
   const wasDone=tierDone(f.tier);
-  save.caught[f.id]={n:(prev?prev.n:0)+1,best:Math.max(prev?prev.best:0,size)};
+  const isPB=!!prev&&f.shape!=='boot'&&size>prev.best;
+  const c=save.caught[f.id]=prev?{...prev}:{n:0,best:0,v:{}};
+  c.n++; c.best=Math.max(c.best,size); c.v=c.v||{};
+  const newVar=!!v&&!c.v[v]; if(v) c.v[v]=1;
+  if(isNew||newVar) c.seen=0;
+  const N=MASTERY_N[f.tier], justMastered=!c.m&&c.n>=N; if(justMastered) c.m=1;
   const full=save.cooler.length>=coolerCap();
-  if(!full) save.cooler.push({id:f.id,size,perfect:!!fish.perfect});
+  if(!full) save.cooler.push({id:f.id,size,perfect:!!fish.perfect,v});
   persist(); updateCount(); updateWallet();
-  showCatch(f,size,isNew,fish.perfect,full);
-  sfx.catch(TIERS[f.tier].rank, isNew);
+  showCatch(f,size,{isNew,isPB,newVar,variant:v,perfect:fish.perfect,full});
+  sfx.catch(TIERS[f.tier].rank, isNew||newVar); if(v) sfx.shimmer(v==='golden');
+  if(justMastered){ const bonus=Math.max(30,BASE_PRICE[f.tier]*4);
+    setTimeout(()=>{ save.shells+=bonus; persist(); updateWallet(); bumpEl('shellsC'); sfx.coins(5);
+      say(`${f.name} mastered! +${bonus}`,boatTop(),{cls:'gold',dur:3.4,rise:3}); },isNew?2600:2000); }
   if(!wasDone && tierDone(f.tier)){
     const prize=Object.entries(STYLES).map(([k,l])=>l.find(it=>it.unlock===f.tier)).find(Boolean);
     if(prize) setTimeout(()=>{ say(`all ${f.tier} fish! unlocked: ${prize.name}`,boatTop(),{cls:'gold',dur:3.2,rise:3}); sfx.buy(); },1800);
@@ -1663,7 +1777,8 @@ function updateFishing(dt,t){
     if(fish.t>fish.dur){
       if(fish.noBite){ const at=fish.bob.clone(); fish.spot.cd=10; endFishing(); sfx.miss(); say('nothing\u2019s biting here…',at,{dur:2.6,cls:'small'}); return; }
       fish.hook=0; fish.perfectAll=true; fish.dip=.6; sfx.bite(T.rank); splash(fish.bob,5+T.rank*2,.4);
-      if(T.rank>=3) say('something big!',fish.bob,{cls:'gold big',dur:1.5,rise:0,dy:125});
+      if(fish.variant) say('something shimmers…',fish.bob,{cls:'gold big',dur:1.5,rise:0,dy:125});
+      else if(T.rank>=3) say('something big!',fish.bob,{cls:'gold big',dur:1.5,rise:0,dy:125});
       try{navigator.vibrate&&navigator.vibrate(T.rank>=3?[40,40,60]:40);}catch(_){}
       startHook();
     }
