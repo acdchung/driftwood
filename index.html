@@ -1209,7 +1209,8 @@ const BIOME_GEAR={ice:'icebow',ember:'emberhull',starlit:'deeplamp'};
 FISH.forEach(f=>{ if(f.biome&&BIOME_GEAR[f.biome]&&f.tier!=='Common') f.gear=BIOME_GEAR[f.biome]; });
 let save={caught:{}};
 try{ const s=JSON.parse(localStorage.getItem('driftwood-v2')); if(s&&s.caught) save=s; }catch(e){}
-save.visited=save.visited||{}; save.inv=save.inv||{chair:1,plant:1}; save.decor=save.decor||[]; save.seen=save.seen||{}; save.biomes=save.biomes||{home:1};
+save.visited=save.visited||{};
+if(save.boat&&isFinite(save.boat.x)&&isFinite(save.boat.z)){ boat.pos.set(save.boat.x,0,save.boat.z); boat.heading=save.boat.h||0; } save.inv=save.inv||{chair:1,plant:1}; save.decor=save.decor||[]; save.seen=save.seen||{}; save.biomes=save.biomes||{home:1};
 for(const k in save.caught) if(!FISH.some(f=>f.id===k)) delete save.caught[k];
 function persist(){ try{ localStorage.setItem('driftwood-v2',JSON.stringify(save)); }catch(e){} }
 // recolour a fish for its variant (used for the 2D art and the 3D fish that flies onto the deck)
@@ -2530,7 +2531,7 @@ function updateChunks(){
   return false;
 }
 // ---- which waters you're in: colours, haze, darkness, soft gates
-let curBiome='home', biomeCand='home', biomeCandT=0, biomeDark=0, biomeSpeed=1, biomeT=0;
+let curBiome=biomeAt(boat.pos.x,boat.pos.z), biomeCand=curBiome, biomeCandT=0, biomeDark=0, biomeSpeed=1, biomeT=0;
 const _bc=[new THREE.Color(),new THREE.Color(),new THREE.Color()], _bt=[new THREE.Color(),new THREE.Color(),new THREE.Color()], _hz=new THREE.Color(), _hzT=new THREE.Color();
 let hazeAmt=0;
 function biomeTargets(x,z){
@@ -2828,6 +2829,7 @@ function updateHouse(dt,t){
 }
 
 setHull();
+for(let i=0;i<40&&updateChunks();i++);   // build the waters around wherever you start
 
 // ---------------------------------------------------------------- loop
 const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
@@ -2851,6 +2853,9 @@ function placeCamera(snap,dt){
 }
 let started=false;
 updateCount(); updateWallet();
+function saveSpot(){ save.ph=dayPh; save.boat={x:+boat.pos.x.toFixed(2),z:+boat.pos.z.toFixed(2),h:+boat.heading.toFixed(3)}; persist(); }
+addEventListener('pagehide',()=>{ if(started) saveSpot(); });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden&&started) saveSpot(); });
 function begin(){ if(started) return; started=true; initAudio(); initMusic(); $('start').classList.add('hidden');  }
 $('go').onclick=begin;
 
@@ -3060,7 +3065,7 @@ function frame(now){
   placeCamera(false,dt);
   updateHouse(dt,t);
   updateUI(dt); shellTick(dt); updateActions(dt); updateDay(dt,t); updateBottles(dt,t);
-  saveT-=dt; if(saveT<=0){ saveT=10; save.ph=dayPh; persist(); }
+  saveT-=dt; if(saveT<=0){ saveT=5; saveSpot(); }
   sun.position.copy(boat.pos).add(SUN_OFF); sun.target.position.copy(boat.pos);
 
   renderer.setRenderTarget(rt); renderer.render(scene,camera);
