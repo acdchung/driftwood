@@ -362,13 +362,17 @@ function mat(color, o={}){
 function mesh(geo, color, o={}, shadow=true){
   const m = new THREE.Mesh(geo, mat(color,o)); m.castShadow=shadow; m.receiveShadow=true; return m;
 }
-function softTex(){
-  const c=document.createElement('canvas'); c.width=c.height=64; const x=c.getContext('2d');
-  const g=x.createRadialGradient(32,32,0,32,32,32);
-  g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.45,'rgba(255,255,255,.75)'); g.addColorStop(1,'rgba(255,255,255,0)');
-  x.fillStyle=g; x.fillRect(0,0,64,64); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+// radial falloff textures built from raw pixels (canvas gradients get dithered on iPhone, which showed up as coloured speckles)
+function radialTex(fall,N=128){
+  const d=new Uint8Array(N*N*4);
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const r=Math.min(1,Math.hypot(x+.5-N/2,y+.5-N/2)/(N/2)); const i=(y*N+x)*4;
+    d[i]=d[i+1]=d[i+2]=255; d[i+3]=Math.round(clamp(fall(r),0,1)*255); }
+  const t=new THREE.DataTexture(d,N,N,THREE.RGBAFormat); t.colorSpace=THREE.SRGBColorSpace;
+  t.magFilter=THREE.LinearFilter; t.minFilter=THREE.LinearMipmapLinearFilter; t.generateMipmaps=true; t.needsUpdate=true; return t;
 }
-const SOFT = softTex();
+const SOFT = radialTex(r=>r<.45?1-r/.45*.25:.75*Math.pow(1-(r-.45)/.55,1.6));
+// light glows: bright core that fades out gradually with no visible edge
+const GLOWTEX = radialTex(r=>Math.exp(-r*r*5.5)*(1-r*r)*(1-r*r));
 
 // ---------------------------------------------------------------- islands
 // Every island is a union of round "blobs", so shapes can be crescents, chains, twins…
@@ -1710,9 +1714,9 @@ function isNight(){ return dayPh>.54&&dayPh<.96; }
 let nightK=0;
 const EMISSIVE=[]; scene.traverse(o=>{ if(o.isMesh&&o.material&&o.material.emissive&&o.material.emissive.getHex()!==0&&!EMISSIVE.some(e=>e.m===o.material)) EMISSIVE.push({m:o.material,base:o.material.emissiveIntensity}); });
 // warm glows around lamps, windows and fires
-const glowMat=new THREE.SpriteMaterial({map:SOFT,color:'#ffc06a',transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
-const glows=[]; for(const p of GLOW_POS.concat(FLAMES.map(f=>f.getWorldPosition(new THREE.Vector3())))){ const g=new THREE.Sprite(glowMat); g.position.copy(p); g.scale.setScalar(4.2); scene.add(g); glows.push(g); }
-{ const lp=ISL.lantern.lamp.getWorldPosition(new THREE.Vector3()); const g=new THREE.Sprite(glowMat); g.position.copy(lp); g.scale.setScalar(9); scene.add(g); }
+const glowMat=new THREE.SpriteMaterial({map:GLOWTEX,color:'#ffc06a',transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending});
+const glows=[]; for(const p of GLOW_POS.concat(FLAMES.map(f=>f.getWorldPosition(new THREE.Vector3())))){ const g=new THREE.Sprite(glowMat); g.position.copy(p); g.scale.setScalar(7.5); g.renderOrder=5; scene.add(g); glows.push(g); }
+{ const lp=ISL.lantern.lamp.getWorldPosition(new THREE.Vector3()); const g=new THREE.Sprite(glowMat); g.position.copy(lp); g.scale.setScalar(15); g.renderOrder=5; scene.add(g); }
 // lighthouse beams
 const beam=new THREE.Group(); { const geo=new THREE.ConeGeometry(2.6,30,20,1,true); geo.translate(0,-15,0); geo.rotateZ(Math.PI/2); geo.scale(1,.45,1);
   const bm=new THREE.MeshBasicMaterial({color:'#fff1b8',transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide});
@@ -1741,7 +1745,7 @@ function updateDay(dt,t){
   const sx= nightK>.5 ? 26 : lerp(-42,42,clamp(dayPh/.52,0,1));
   SUN_OFF.set(sx,46,-22);
   for(const em of EMISSIVE) em.m.emissiveIntensity=em.base*(1+nightK*1.8);
-  glowMat.opacity=nightK*.75;
+  glowMat.opacity=nightK*.6;
   beam.rotation.y=t*.5; beam.userData.m.opacity=nightK*.07;
   boatLamp.userData.box.material.emissiveIntensity=.3+nightK*2.2; boatLight.intensity=nightK*22;
   boatPool.visible=false; waterMat.uniforms.uGlow.value.set(boat.pos.x,boat.pos.z,5,nightK*.32);
