@@ -27,6 +27,7 @@
   .counter.bump{animation:bump .5s cubic-bezier(.3,1.8,.5,1)}
   @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
   .icons{display:flex;gap:10px}
+  @media (max-width:420px){ .icons{gap:6px} .icons .iconbtn{width:42px;height:42px} }
   .iconbtn{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff;
     background:rgba(255,248,234,.18);border:1.5px solid rgba(255,255,255,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     box-shadow:0 4px 14px rgba(6,36,58,.25);transition:transform .15s}
@@ -311,7 +312,7 @@
     <button class="iconbtn" id="shopBtn" aria-label="Shop"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M17.5 3a2 2 0 0 1 1.6.8l2.688 3.584a.995.995 0 0 1 .204.616H22v1a3.99 3.99 0 0 1-1 2.646V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7.354A3.985 3.985 0 0 1 2 9V8h.008a.995.995 0 0 1 .204-.616L4.9 3.8A2 2 0 0 1 6.5 3zM20 9h-4a2 2 0 0 0 3.995.15zm-6 0h-4a2 2 0 0 0 3.995.15zM8 9H4a2 2 0 0 0 3.995.15z"/></g></svg><span class="badge" id="coolerBadge">0/8</span></button>
     <button class="iconbtn" id="mapBtn" aria-label="Map"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M9 5.054c-.065 1.642 0 11.973 0 11.973.16 0 .32.026.474.077L15 18.946V6.973a1.5 1.5 0 0 1-.474-.077zm-.474-1.95a1.5 1.5 0 0 1 .948 0L15 4.946l5.289-1.763A1.3 1.3 0 0 1 22 4.416V17.64a1.5 1.5 0 0 1-1.026 1.423l-5.5 1.833c-.308.103-.64.103-.948 0L9 19.054l-5.289 1.763A1.3 1.3 0 0 1 2 19.584V6.36a1.5 1.5 0 0 1 1.026-1.423z"/></g></svg></button>
     <button class="iconbtn" id="journalBtn" aria-label="Fish journal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="none"><path fill="currentColor" d="M10.268 20.158c.363.167.655.334.853.457.285.177.524.385.88.385.348 0 .595-.21.878-.385.198-.123.49-.29.853-.457.733-.339 1.711-.658 2.768-.658 1.279 0 2.438.468 3.18.862a1.592 1.592 0 0 0 1.514-.02c.427-.236.806-.71.806-1.342V6.5c0-.621-.295-1.263-.898-1.629-.774-.47-2.516-1.371-4.602-1.371-1.443 0-2.715.43-3.607.842-.354.164-.656.328-.893.468-.237-.14-.539-.304-.893-.468C10.215 3.931 8.943 3.5 7.5 3.5c-2.086 0-3.828.9-4.602 1.371A1.893 1.893 0 0 0 2 6.5V19c0 .633.379 1.106.806 1.342.423.233.996.295 1.515.02.741-.394 1.9-.862 3.179-.862 1.057 0 2.035.32 2.768.658"/></g></svg></button>
-    <button class="iconbtn" id="soundBtn" aria-label="Toggle sound"></button>
+    <button class="iconbtn" id="musicBtn" aria-label="Toggle music"></button><button class="iconbtn" id="soundBtn" aria-label="Toggle sound"></button>
   </div>
 </div>
 
@@ -1528,7 +1529,7 @@ $('jgrid').addEventListener('click',e=>{ const sl=e.target.closest('.slot'); if(
 // ---------------------------------------------------------------- audio
 let ac=null, master=null, muted=false, rush=null;
 function initAudio(){
-  if(ac){ if(ac.state==='suspended') ac.resume(); return; }
+  if(ac){ if(ac.state==='suspended') ac.resume(); if(started) initMusic(); return; }
   try{
     ac=new (window.AudioContext||window.webkitAudioContext)(); master=ac.createGain(); master.gain.value=.7; master.connect(ac.destination);
     // ocean bed: brown noise, low-passed, slowly swelling
@@ -1549,6 +1550,60 @@ function tone(f,dur,{type='sine',vol=.18,to=null,delay=0}={}){
   o.type=type; o.frequency.setValueAtTime(f,t); if(to) o.frequency.exponentialRampToValueAtTime(to,t+dur);
   g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.012); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
   o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+.05);
+}
+// ---- background music: slow, generative and a little tropical. Each area has its own chords; nights get sparser.
+const MUSIC={
+  home:   {prog:[[60,64,67,71],[57,60,64,67],[53,57,60,64],[55,59,62,64]],scale:[60,62,64,67,69],bright:1,  shaker:1},
+  reef:   {prog:[[53,57,60,64],[50,53,57,60],[58,62,65,69],[48,52,55,57]],scale:[65,67,69,72,74],bright:1.15,shaker:1},
+  kelp:   {prog:[[50,53,57,60],[46,50,53,57],[53,57,60,64],[48,52,55,60]],scale:[62,65,67,69,72],bright:.8},
+  ice:    {prog:[[52,56,59,63],[49,52,56,59],[45,49,52,56],[47,51,54,56]],scale:[64,66,68,71,73],bright:1.2, bells:1,sparse:1},
+  ember:  {prog:[[45,48,52,55],[41,45,48,52],[50,53,57,60],[52,56,59,62]],scale:[57,60,62,64,67],bright:.7},
+  starlit:{prog:[[51,55,58,62],[48,51,55,58],[44,48,51,55],[46,51,53,58]],scale:[63,65,67,70,72],bright:1,  bells:1,sparse:1},
+};
+let mus=null, musicOn=true;
+try{ musicOn=localStorage.getItem('driftwood-music')!=='off'; }catch(e){}
+const mf=m=>440*Math.pow(2,(m-69)/12);
+function initMusic(){
+  if(!ac||mus) return;
+  const bus=ac.createGain(); bus.gain.value=0; bus.connect(master);
+  const verb=ac.createConvolver(), len=Math.floor(ac.sampleRate*2.6), ir=ac.createBuffer(2,len,ac.sampleRate);
+  for(let c=0;c<2;c++){ const d=ir.getChannelData(c); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3); }
+  verb.buffer=ir; const wet=ac.createGain(); wet.gain.value=.4; bus.connect(verb); verb.connect(wet); wet.connect(master);
+  const sb=ac.createBuffer(1,Math.floor(ac.sampleRate*.08),ac.sampleRate), sd=sb.getChannelData(0); for(let i=0;i<sd.length;i++) sd[i]=(Math.random()*2-1)*Math.pow(1-i/sd.length,2);
+  mus={bus,next:ac.currentTime+.4,step:0,mel:4,set:MUSIC.home,shk:sb};
+  if(musicOn) bus.gain.setTargetAtTime(.5,ac.currentTime,4);
+  setInterval(schedMusic,100);
+}
+function setMusic(on){ musicOn=on; try{ localStorage.setItem('driftwood-music',on?'on':'off'); }catch(e){} if(mus) mus.bus.gain.setTargetAtTime(on?.5:0,ac.currentTime,on?2:.4); }
+function mnote(f,t,dur,{type='sine',vol=.05,attack=.01,pan=0,lp=0,harm=0,hdecay=.35}={}){
+  const o=ac.createOscillator(), g=ac.createGain(); o.type=type; o.frequency.value=f;
+  let out=g; if(lp){ const fl=ac.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=lp; g.connect(fl); out=fl; }
+  if(ac.createStereoPanner){ const p=ac.createStereoPanner(); p.pan.value=pan; out.connect(p); p.connect(mus.bus); } else out.connect(mus.bus);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+attack); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g); o.start(t); o.stop(t+dur+.1);
+  if(harm){ const o2=ac.createOscillator(), g2=ac.createGain(); o2.frequency.value=f*harm; g2.gain.setValueAtTime(0,t); g2.gain.linearRampToValueAtTime(vol*.3,t+attack); g2.gain.exponentialRampToValueAtTime(.0001,t+dur*hdecay); o2.connect(g2); g2.connect(g); o2.start(t); o2.stop(t+dur); }
+}
+function schedMusic(){
+  if(!mus||!ac||ac.state!=='running'||!musicOn||muted) { if(ac) mus.next=Math.max(mus.next,ac.currentTime+.2); return; }
+  const stepDur=60/74/2;
+  while(mus.next<ac.currentTime+.5){
+    const t=mus.next, st=mus.step, night=typeof nightK==='number'&&nightK>.5;
+    if(st%64===0) mus.set=MUSIC[typeof curBiome==='string'?curBiome:'home']||MUSIC.home;
+    const S=mus.set, chord=S.prog[Math.floor(st%64/16)], dim=night?.6:1;
+    if(st%16===0) chord.forEach((n,i)=>mnote(mf(n),t+i*.05,stepDur*17,{type:'triangle',vol:.016,attack:1.8,lp:650*S.bright*dim,pan:(i-1.5)*.25}));
+    if(st%8===0) mnote(mf(chord[0]-12),t,1.8,{vol:.06*dim,attack:.03,lp:380});
+    if(st%8===5&&!night) mnote(mf(chord[2]-12),t,1.0,{vol:.035,attack:.03,lp:380});
+    const p=(S.sparse?.17:.3)*(night?.5:1)*(st%2===0?1.3:.6);
+    if(Math.random()<p){
+      mus.mel=clamp(mus.mel+[-2,-1,-1,1,1,2][Math.floor(Math.random()*6)],0,9);
+      const n=S.scale[mus.mel%5]+12*Math.floor(mus.mel/5)-(night?12:0);
+      if(S.bells) mnote(mf(n+12),t,2.4,{vol:.03,harm:2.76,hdecay:.6,pan:Math.random()-.5});
+      else mnote(mf(n),t,.95,{vol:.05*dim,harm:4,hdecay:.25,pan:(Math.random()-.5)*.8});
+      if(!night&&Math.random()<.18) mnote(mf(n+7),t+stepDur,.8,{vol:.025,harm:4,hdecay:.25,pan:.3});
+    }
+    if(S.shaker&&!night&&st%2===1){ const s=ac.createBufferSource(); s.buffer=mus.shk; const f=ac.createBiquadFilter(); f.type='highpass'; f.frequency.value=6500; const g=ac.createGain(); g.gain.value=st%4===3?.05:.025; s.connect(f); f.connect(g); g.connect(mus.bus); s.start(t); }
+    mus.next+=stepDur; mus.step++;
+  }
 }
 function noiseBurst(dur=.35,freq=1400,vol=.25){
   if(!ac) return; const t=ac.currentTime; const len=ac.sampleRate*dur, b=ac.createBuffer(1,len,ac.sampleRate), d=b.getChannelData(0);
@@ -1579,6 +1634,10 @@ const sfx={
     const g=ac.createGain(); g.gain.value=.35; s.connect(f); f.connect(g); g.connect(master); s.start(t);
     [784,988,1319].forEach((fr,i)=>tone(fr,.5,{type:'sine',vol:.06,delay:.1+i*.07})); }
 };
+const MUSIC_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 3.5v11.2a3.3 3.3 0 1 1-2-3V7.6l-8 1.8v7.3a3.3 3.3 0 1 1-2-3V6.2a1 1 0 0 1 .8-1l10-2.2a1 1 0 0 1 1.2 1z"/></svg>';
+function paintMusic(){ $('musicBtn').innerHTML=MUSIC_ICON; $('musicBtn').style.opacity=musicOn?1:.45; }
+paintMusic();
+$('musicBtn').onclick=()=>{ initAudio(); setMusic(!musicOn); if(started) initMusic(); paintMusic(); sfx.ui(); };
 $('soundBtn').onclick=()=>{ initAudio(); muted=!muted; if(master) master.gain.value=muted?0:.7;
   $('soundBtn').innerHTML = muted ? ICON.volume_off_fill : ICON.volume_fill; };
 
@@ -2519,8 +2578,8 @@ const CELL=.6, DECK_Y=.68;
 const HULLS=[
   {name:'Skiff',      L:3.4,W:1.7,H:.8, helm:-1.0, mast:.45, cols:2,rows:2,zc:-.15,R:1.3,cabin:null,                     zoom:.15},
   {name:'Sloop',      L:4.8,W:2.4,H:.9, helm:-1.6, mast:1.15,cols:3,rows:3,zc:-.15,R:1.7,cabin:null,                     zoom:.18},
-  {name:'Cabin Boat', L:6.4,W:3.2,H:1.0,helm:-1.25,mast:2.0, cols:4,rows:4,zc:.35, R:2.2,cabin:{z:-2.4,len:1.5,w:2.4,h:1.5},zoom:.24},
-  {name:'Houseboat',  L:8.6,W:3.8,H:1.1,helm:-1.15,mast:2.9, cols:5,rows:5,zc:.75, R:2.8,cabin:{z:-3.0,len:2.6,w:3.0,h:1.9},zoom:.29},
+  {name:'Cabin Boat', L:6.4,W:3.4,H:1.0,helm:-1.25,mast:2.0, cols:4,rows:4,zc:.35, R:2.2,cabin:{z:-2.4,len:1.5,w:2.4,h:1.5},zoom:.24},
+  {name:'Houseboat',  L:8.6,W:4.2,H:1.1,helm:-1.35,mast:2.9, cols:5,rows:5,zc:.55, R:2.8,cabin:{z:-3.0,len:2.6,w:3.0,h:1.9},zoom:.29},
 ];
 const HULL=()=>HULLS[Math.min(HULLS.length-1,lvl('hull'))];
 // ---- the boat's body is rebuilt when you upgrade the hull
@@ -2533,10 +2592,16 @@ const gridG=new THREE.Group(); boat.body.add(gridG); gridG.visible=false;
 function setHull(){
   const H=HULL(); boat.hullG.clear();
   const hull=new THREE.Mesh(hullGeo(H.L,H.W,H.H),boat.hullMat); hull.castShadow=true; hull.position.y=DECK_Y-.08-H.H/2; boat.hullG.add(hull);
-  const dl=H.L*.78, dw=H.W*.8, dz=-H.L*.06;
-  const rim=new THREE.Mesh(new THREE.BoxGeometry(dw+.2,.1,dl+.1),mat('#fff3e2')); rim.position.set(0,.6,dz); boat.hullG.add(rim);
-  const deck=new THREE.Mesh(new THREE.BoxGeometry(dw,.06,dl),mat('#e9c99a')); deck.position.set(0,DECK_Y-.03,dz); deck.receiveShadow=true; boat.hullG.add(deck);
-  for(let i=1;i<Math.round(dw/.32);i++){ const pl=new THREE.Mesh(new THREE.BoxGeometry(.02,.005,dl*.98),mat('#d6b07e')); pl.position.set(-dw/2+i*.32,DECK_Y+.001,dz); boat.hullG.add(pl); }
+  // deck + rim are cut to the same tapered outline as the hull, so nothing hangs over the sides
+  const outline=(k,t0,t1)=>{ const sh=new THREE.Shape(), N=18, side=[];
+    for(let i=0;i<=N;i++){ const t=lerp(t0,t1,i/N), s=t>.55?1-Math.pow((t-.55)/.45,1.6)*.94:1-(.55-t)*.18; side.push([H.W/2*s*k,-H.L/2+t*H.L]); }
+    sh.moveTo(-side[0][0],side[0][1]); for(const [x,z] of side) sh.lineTo(x,z); for(let i=side.length-1;i>=0;i--) sh.lineTo(-side[i][0],side[i][1]); return sh; };
+  const slab=(sh,depth,col,y)=>{ const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:false}); g.rotateX(Math.PI/2); const m=new THREE.Mesh(g,mat(col)); m.position.y=y; m.receiveShadow=true; boat.hullG.add(m); return m; };
+  slab(outline(.97,.02,.9),.1,'#fff3e2',DECK_Y-.02);
+  slab(outline(.86,.05,.84),.05,'#e9c99a',DECK_Y);
+  const dw=H.W*.8, t0=.05, t1=.84;
+  for(let i=1;i<Math.round(dw/.32);i++){ const x=-dw/2+i*.32, ok=[]; for(let j=0;j<=24;j++){ const t=lerp(t0,t1,j/24), s=t>.55?1-Math.pow((t-.55)/.45,1.6)*.94:1-(.55-t)*.18; if(Math.abs(x)<H.W/2*s*.82) ok.push(-H.L/2+t*H.L); }
+    if(ok.length<2) continue; const a=ok[0], b=ok[ok.length-1]; const pl=new THREE.Mesh(new THREE.BoxGeometry(.02,.005,b-a),mat('#d6b07e')); pl.position.set(x,DECK_Y+.002,(a+b)/2); boat.hullG.add(pl); }
   if(H.cabin){ const C=H.cabin, g=new THREE.Group();
     const wall=new THREE.Mesh(new THREE.BoxGeometry(C.w,C.h,C.len),mat('#fff3e2')); wall.position.y=C.h/2; wall.castShadow=true; g.add(wall);
     const roof=new THREE.Mesh(new THREE.BoxGeometry(C.w+.35,.14,C.len+.35),boat.hullMat); roof.position.y=C.h+.07; roof.castShadow=true; g.add(roof);
@@ -2785,7 +2850,7 @@ function placeCamera(snap,dt){
 }
 let started=false;
 updateCount(); updateWallet();
-function begin(){ if(started) return; started=true; initAudio(); $('start').classList.add('hidden');  }
+function begin(){ if(started) return; started=true; initAudio(); initMusic(); $('start').classList.add('hidden');  }
 $('go').onclick=begin;
 
 const MAX_SPEED=15, BOOST_TIME=3.2;
