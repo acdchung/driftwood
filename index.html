@@ -156,7 +156,9 @@
   #mapleg span.unk{background:#d9ccb4 !important;color:#8a7a62}
   #decoBtn{position:fixed;left:18px;bottom:calc(max(22px,env(safe-area-inset-bottom)) + 34px);height:52px;padding:0 18px 0 14px;border-radius:26px;display:flex;align-items:center;gap:7px;
     background:var(--cream);color:#c4643f;font-size:16px;font-weight:800;box-shadow:0 0 0 4px rgba(255,180,140,.85),0 8px 20px rgba(6,36,58,.3);z-index:6;transition:transform .28s cubic-bezier(.3,1.6,.5,1),opacity .2s}
-  #decoBtn svg{width:22px;height:22px} #decoBtn.hidden{transform:scale(0);opacity:0;pointer-events:none} #decoBtn:active{transform:scale(.92)}
+  #decoBtn svg,#helmBtn svg{width:22px;height:22px}
+  #helmBtn{position:fixed;left:18px;bottom:calc(max(22px,env(safe-area-inset-bottom)) + 34px);height:52px;padding:0 18px 0 14px;border-radius:26px;display:flex;align-items:center;gap:7px;background:#3f9f7f;color:#fff;font-size:16px;font-weight:800;box-shadow:0 8px 20px rgba(6,36,58,.3);z-index:6;transition:transform .28s cubic-bezier(.3,1.6,.5,1),opacity .2s}
+  #helmBtn.hidden{transform:scale(0);opacity:0;pointer-events:none} #decoBtn.hidden{transform:scale(0);opacity:0;pointer-events:none} #decoBtn:active{transform:scale(.92)}
   #decoBtn.pulse{animation:dpulse 1.6s ease-in-out infinite} @keyframes dpulse{50%{box-shadow:0 0 0 9px rgba(255,180,140,.45),0 8px 20px rgba(6,36,58,.3)}}
   #deco{position:fixed;left:0;right:0;bottom:0;z-index:9;pointer-events:none}
   #deco.hidden{display:none}
@@ -952,7 +954,7 @@ const GLOW_POS=[];
 })();
 
 // ---------------------------------------------------------------- water
-const islandUniform = Array.from({length:24},()=>new THREE.Vector3(9999,9999,0));
+const islandUniform = Array.from({length:32},()=>new THREE.Vector3(9999,9999,0));
 const WATER_SIZE=320, WATER_SEG=160;
 const waterGeo = new THREE.PlaneGeometry(WATER_SIZE,WATER_SIZE,WATER_SEG,WATER_SEG); waterGeo.rotateX(-Math.PI/2);
 const waterMat = new THREE.ShaderMaterial({
@@ -962,9 +964,9 @@ const waterMat = new THREE.ShaderMaterial({
     float wave(vec2 p,float t){return 0.12*sin(p.x*0.18+t*1.1)+0.08*sin(p.y*0.23+t*1.4)+0.05*sin((p.x+p.y)*0.35+t*2.0);}
     void main(){vec4 w=modelMatrix*vec4(position,1.0);w.y+=wave(w.xz,uTime);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
   fragmentShader:`
-    uniform float uTime; uniform vec3 uIsl[24]; uniform vec3 uTint; uniform float uNight; uniform vec4 uGlow; uniform vec3 uDeep; uniform vec3 uMid; uniform vec3 uShal; varying vec3 vW;
+    uniform float uTime; uniform vec3 uIsl[32]; uniform vec3 uTint; uniform float uNight; uniform vec4 uGlow; uniform vec3 uDeep; uniform vec3 uMid; uniform vec3 uShal; varying vec3 vW;
     vec3 lin(vec3 c){return pow(c,vec3(2.2));}
-    float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+    float hash(vec2 p){p=mod(p,289.0);vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
       return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
     vec3 pal(float h){
@@ -976,7 +978,7 @@ const waterMat = new THREE.ShaderMaterial({
     }
     void main(){
       float d=1e4;
-      for(int i=0;i<24;i++){vec3 I=uIsl[i];d=min(d,length(vW.xz-I.xy)-I.z);}
+      for(int i=0;i<32;i++){vec3 I=uIsl[i];d=min(d,length(vW.xz-I.xy)-I.z);}
       float n=noise(vW.xz*0.12);
       float dd=d+(n-0.5)*6.0;
       vec3 deep=uDeep, mid=uMid, shal=uShal, sandy=mix(lin(vec3(0.74,0.91,0.80)),uShal,0.35);
@@ -1121,7 +1123,7 @@ trailGeo.setAttribute('aInfo',new THREE.Float32BufferAttribute(new Float32Array(
 const trailMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,uniforms:{uTint:{value:new THREE.Vector3(1,1,1)}},
   vertexShader:`attribute vec3 aInfo; varying vec3 vI; varying vec3 vW; void main(){ vI=aInfo; vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
   fragmentShader:`uniform vec3 uTint; varying vec3 vI; varying vec3 vW;
-    float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+    float hash(vec2 p){p=mod(p,289.0);vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
     void main(){
       float side=abs(vI.x*2.0-1.0), age=vI.y, str=vI.z;
@@ -1772,7 +1774,8 @@ function updateUI(dt){
 // ---------------------------------------------------------------- sea chart
 let mapZoom=1;
 function drawMap(){
-  const c=$('mapc'), css=c.clientWidth||400, dpr=Math.min(2,devicePixelRatio||1), S=css*dpr; c.width=c.height=S;
+  const c=$('mapc'), css=Math.round(c.getBoundingClientRect().width); if(!css){ requestAnimationFrame(drawMap); return; }
+  const dpr=Math.min(3,devicePixelRatio||1), S=Math.round(css*dpr); if(c.width!==S){ c.width=c.height=S; }
   const g=c.getContext('2d'); g.setTransform(1,0,0,1,0,0);
   const span=mapZoom===1?380:1100, sc=S/(span*2), ox=boat.pos.x, oz=boat.pos.z, X=x=>S/2+(x-ox)*sc, Z=z=>S/2+(z-oz)*sc;
   // fog of the unknown
@@ -1782,11 +1785,16 @@ function drawMap(){
   const L=document.createElement('canvas'); L.width=L.height=S; const l=L.getContext('2d');
   const M=document.createElement('canvas'); M.width=M.height=S; const m=M.getContext('2d');
   const c0x=Math.floor((ox-span)/CH)-1, c1x=Math.floor((ox+span)/CH)+1, c0z=Math.floor((oz-span)/CH)-1, c1z=Math.floor((oz+span)/CH)+1;
-  const cell=CH/4;
+  // ocean colours: a small smooth image of the waters, scaled up softly (no blocky steps)
+  { const N=Math.min(220,Math.round(S/2)), B=document.createElement('canvas'); B.width=B.height=N; const bg=B.getContext('2d'), im=bg.createImageData(N,N), RGB={};
+    for(const b in BIOMES){ const h=parseInt(BIOMES[b].map.slice(1),16); RGB[b]=[h>>16&255,h>>8&255,h&255]; }
+    const off=[[.25,.25],[.75,.25],[.25,.75],[.75,.75]];
+    for(let j=0;j<N;j++) for(let i=0;i<N;i++){ let r=0,g2=0,b2=0; for(const [u,v] of off){ const c=RGB[biomeAt(ox+((i+u)/N*2-1)*span,oz+((j+v)/N*2-1)*span)]; r+=c[0]; g2+=c[1]; b2+=c[2]; }
+      const k=(j*N+i)*4; im.data[k]=r/4; im.data[k+1]=g2/4; im.data[k+2]=b2/4; im.data[k+3]=255; }
+    bg.putImageData(im,0,0); l.imageSmoothingEnabled=true; l.imageSmoothingQuality='high'; l.drawImage(B,0,0,S,S); }
   for(let cz=c0z;cz<=c1z;cz++) for(let cx=c0x;cx<=c1x;cx++){
-    for(let j=0;j<4;j++) for(let i=0;i<4;i++){ const x=cx*CH+i*cell, z=cz*CH+j*cell; l.fillStyle=BIOMES[biomeAt(x+cell/2,z+cell/2)].map; l.fillRect(X(x)-1,Z(z)-1,cell*sc+2,cell*sc+2); }
     if(!save.seen[cx+','+cz]) continue;
-    const r=CH*1.05*sc, gx=X(cx*CH+CH/2), gz=Z(cz*CH+CH/2), gr=m.createRadialGradient(gx,gz,r*.35,gx,gz,r);
+    const r=CH*1.05*sc, gx=X(cx*CH+CH/2), gz=Z(cz*CH+CH/2), gr=m.createRadialGradient(gx,gz,r*.55,gx,gz,r);
     gr.addColorStop(0,'rgba(0,0,0,1)'); gr.addColorStop(1,'rgba(0,0,0,0)'); m.fillStyle=gr; m.fillRect(gx-r,gz-r,r*2,r*2); }
   const blob=(x,z,r,col)=>{ l.fillStyle=col; l.beginPath(); l.arc(X(x),Z(z),Math.max(1.2*dpr,r*sc),0,6.28); l.fill(); };
   const homeSand=SAND.filter(b=>!b.ch);
@@ -2322,7 +2330,12 @@ function rest(){
   setTimeout(()=>{ const night=isNight(); dayPh= night? .05 : .53; $('fade').classList.remove('on');
     setTimeout(()=>say(night?'you rested until morning':'you rested until dusk',walker.pos.clone().setY(walker.y+2.2),{cls:'soft',dur:2.6}),400); },1100);
 }
-function standUp(){ const S=walker.sit; if(!S) return; walker.sit=null; const f=S.face; walker.pos.set(S.x+Math.sin(f)*.55,0,S.z+Math.cos(f)*.55); walker.y=deckPlat?deckPlat.y:S.y; walker.face=f; sfx.step(true); }
+function standUp(){ const S=walker.sit; if(!S) return; walker.sit=null; const y=deckPlat?deckPlat.y:S.y; let spot=null;
+  // try in front first, then all around, a little further each ring
+  for(const d of [.6,.8,1.05,1.3]){ for(let k=0;k<12&&!spot;k++){ const a=S.face+(k%2?1:-1)*Math.ceil(k/2)*Math.PI/6, x=S.x+Math.sin(a)*d, z=S.z+Math.cos(a)*d;
+    if(canStand(x,z,y)!==null) spot=[x,z,a]; } if(spot) break; }
+  if(!spot&&walker.onDeck){ const h=deckWorld(0,HULL().helm+.55); spot=[h.x,h.z,S.face]; }
+  if(spot){ walker.pos.set(spot[0],0,spot[1]); walker.face=spot[2]; } walker.y=y; sfx.step(true); }
 function updateWalker(dt,inp,t){
   if(walker.jump){ const J=walker.jump; J.t+=dt; const u=Math.min(1,J.t/J.dur);
     W.position.lerpVectors(J.from,J.to,u); W.position.y+=Math.sin(u*Math.PI)*1.4; W.rotation.y=Math.atan2(J.to.x-J.from.x,J.to.z-J.from.z);
@@ -2379,13 +2392,13 @@ function vnoise(x,z){ const xi=Math.floor(x), zi=Math.floor(z), xf=x-xi, zf=z-zi
   const u=xf*xf*(3-2*xf), v=zf*zf*(3-2*zf); return lerp(lerp(h(xi,zi),h(xi+1,zi),u),lerp(h(xi,zi+1),h(xi+1,zi+1),u),v); }
 const BIOMES={
   home:   {name:'Home Waters',   sub:'where it all began',              water:['#124a78','#1a80a3','#5cccc7'], map:'#2f8db3', sand:'#f3dcaa', grass:'#8fca62', haze:['#ffffff',0]},
-  reef:   {name:'Coral Shallows',sub:'warm water and bright reefs',     water:['#0f6688','#18a6b8','#79ecdc'], map:'#2bb3c0', sand:'#ffe9dc', grass:'#7fd46a', haze:['#d8fbff',.06]},
-  kelp:   {name:'Kelp Mists',    sub:'tall forests under the surface',  water:['#0e3b3c','#1d6652','#5aa88a'], map:'#2f7a68', sand:'#d9cfa8', grass:'#5f9a52', haze:['#d6e6dc',.26]},
-  ice:    {name:'Frost Reach',   sub:'cold, quiet and very blue',       water:['#1d4f7a','#4c8dbd','#c4e9f6'], map:'#6aa6cf', sand:'#f4f8fb', grass:null,      haze:['#eef6ff',.22],
+  reef:   {name:'Coral Shallows',sub:'warm water and bright reefs',     water:['#0f6688','#18a6b8','#79ecdc'], map:'#2bb3c0', sand:'#ffe9dc', grass:'#7fd46a', haze:['#d8fbff',.02]},
+  kelp:   {name:'Kelp Mists',    sub:'tall forests under the surface',  water:['#0e3b3c','#1d6652','#5aa88a'], map:'#2f7a68', sand:'#d9cfa8', grass:'#5f9a52', haze:['#d6e6dc',.04], mist:.55},
+  ice:    {name:'Frost Reach',   sub:'cold, quiet and very blue',       water:['#1d4f7a','#4c8dbd','#c4e9f6'], map:'#6aa6cf', sand:'#f4f8fb', grass:null,      haze:['#eef6ff',.03], mist:.35,
            gear:'icebow', slow:.55, hint:'thick ice slows your boat · an Ice Bow helps'},
-  ember:  {name:'Ember Sea',     sub:'the water is warm here. too warm',water:['#2a1a24','#5c2c2c','#b8653a'], map:'#7a3b34', sand:'#4a4048', grass:null,      haze:['#ffb48a',.16],
+  ember:  {name:'Ember Sea',     sub:'the water is warm here. too warm',water:['#2a1a24','#5c2c2c','#b8653a'], map:'#7a3b34', sand:'#4a4048', grass:null,      haze:['#ffb48a',.03], mist:.2,
            gear:'emberhull', slow:.55, hint:'scalding water slows you · an Ember Hull helps'},
-  starlit:{name:'Starlit Deep',  sub:'the sea glows back at you',       water:['#0a0d2a','#1d1f5a','#5a5fc0'], map:'#3a3a8a', sand:'#3a3460', grass:'#5a4fa0', haze:['#2a2860',.2],
+  starlit:{name:'Starlit Deep',  sub:'the sea glows back at you',       water:['#0a0d2a','#1d1f5a','#5a5fc0'], map:'#3a3a8a', sand:'#3a3460', grass:'#5a4fa0', haze:['#2a2860',.04], mist:.2,
            gear:'deeplamp', dark:1, hint:'too dark to spot fish · a Deep Lantern helps'},
 };
 const BIOME_ORDER=['home','reef','kelp','ice','ember','starlit'];
@@ -2564,7 +2577,7 @@ function updateChunks(){
 // ---- which waters you're in: colours, haze, darkness, soft gates
 let curBiome=biomeAt(boat.pos.x,boat.pos.z), biomeCand=curBiome, biomeCandT=0, biomeDark=0, biomeSpeed=1, biomeT=0;
 const _bc=[new THREE.Color(),new THREE.Color(),new THREE.Color()], _bt=[new THREE.Color(),new THREE.Color(),new THREE.Color()], _hz=new THREE.Color(), _hzT=new THREE.Color();
-let hazeAmt=0;
+let hazeAmt=0, mistK=0, mistT=40, mistOn=0;
 function biomeTargets(x,z){
   const pts=[[0,0],[70,0],[-70,0],[0,70],[0,-70]]; _bt.forEach(c=>c.setRGB(0,0,0)); _hzT.setRGB(0,0,0); let hz=0;
   for(const [ox,oz] of pts){ const B=BIOMES[biomeAt(x+ox,z+oz)]; for(let i=0;i<3;i++) _bt[i].add(_ca.set(B.water[i]).multiplyScalar(1/pts.length)); _hzT.add(_ca.set(B.haze[0]).multiplyScalar(1/pts.length)); hz+=B.haze[1]/pts.length; }
@@ -2599,7 +2612,10 @@ function updateBiome(dt){
   for(let i=0;i<3;i++) _bc[i].lerp(_bt[i],1-Math.exp(-dt*.9));
   _hz.lerp(_hzT,1-Math.exp(-dt*.9));
   const U=waterMat.uniforms; U.uDeep.value.set(_bc[0].r,_bc[0].g,_bc[0].b); U.uMid.value.set(_bc[1].r,_bc[1].g,_bc[1].b); U.uShal.value.set(_bc[2].r,_bc[2].g,_bc[2].b);
-  postMat.uniforms.uHaze.value.set(_hz.r,_hz.g,_hz.b,hazeAmt);
+  // every so often a light mist bank rolls through (more likely in misty waters), then clears
+  mistT-=dt; if(mistT<=0){ if(mistOn){ mistOn=0; mistT=90+Math.random()*120; } else if(Math.random()<(BIOMES[curBiome].mist||.05)){ mistOn=1; mistT=25+Math.random()*25; } else mistT=60+Math.random()*60; }
+  mistK=damp(mistK,mistOn?1:0,.25,dt);
+  postMat.uniforms.uHaze.value.set(_hz.r,_hz.g,_hz.b,hazeAmt+mistK*.11);
   const B=BIOMES[curBiome];
   biomeDark=damp(biomeDark,B.dark?1:0,.8,dt);
   biomeSpeed=damp(biomeSpeed,B.slow&&!lvl(B.gear)?B.slow:1,1.5,dt);
@@ -2609,7 +2625,7 @@ function updateBiome(dt){
 // ================================================================ HOUSEBOAT: hulls, deck decorating, walking the deck
 const CELL=.6, DECK_Y=.68;
 const HULLS=[
-  {name:'Skiff',      L:3.4,W:1.7,H:.8, helm:-1.0, mast:.45, cols:2,rows:2,zc:-.15,R:1.3,cabin:null,                     zoom:.15},
+  {name:'Skiff',      L:3.4,W:1.7,H:.8, helm:-1.0, mast:.66, cols:2,rows:2,zc:-.15,R:1.3,cabin:null,                     zoom:.15},
   {name:'Sloop',      L:4.8,W:2.4,H:.9, helm:-1.6, mast:1.15,cols:3,rows:3,zc:-.15,R:1.7,cabin:null,                     zoom:.18},
   {name:'Cabin Boat', L:6.4,W:3.4,H:1.0,helm:-1.25,mast:2.0, cols:4,rows:4,zc:.35, R:2.2,cabin:{z:-2.4,len:1.5,w:2.4,h:1.5},zoom:.24},
   {name:'Houseboat',  L:8.6,W:4.2,H:1.1,helm:-1.35,mast:2.9, cols:5,rows:5,zc:.55, R:2.8,cabin:{z:-3.0,len:2.6,w:3.0,h:1.9},zoom:.29},
@@ -2642,7 +2658,8 @@ function setHull(){
     for(const sx of [-1,1]){ const w=new THREE.Mesh(new THREE.BoxGeometry(.04,.42,.5),mat('#ffdc8a',{emissive:'#ffb84a',emissiveIntensity:.25})); w.position.set(sx*(C.w/2+.01),C.h*.6,0); g.add(w); }
     if(H.name==='Houseboat'){ const ch=new THREE.Mesh(new THREE.BoxGeometry(.3,.6,.3),mat('#c4643f')); ch.position.set(C.w*.3,C.h+.4,-C.len*.25); g.add(ch); }
     g.position.set(0,DECK_Y,C.z); boat.hullG.add(g); }
-  boat.rig.position.z=H.mast-.45; boat.rig.scale.setScalar(1+.18*lvl('hull'));
+  const rs=1+.18*lvl('hull'), RY=1.35; boat.rig.position.set(0,RY,H.mast-.45); boat.rig.scale.setScalar(rs);
+  { const top=RY+.4*rs, base=new THREE.Mesh(new THREE.CylinderGeometry(.065*rs,.08*rs,top-DECK_Y,6),mat('#8b5e3c')); base.position.set(0,(top+DECK_Y)/2,H.mast); base.castShadow=true; boat.hullG.add(base); }
   boat.ch.position.z=H.helm; boat.ch.position.y=DECK_Y-.13;
   boatLamp.position.set(H.W*.32,DECK_Y-.18,H.helm-.45); boatLight.position.set(H.W*.32,DECK_Y+1.2,H.helm-.45);
   // grid lines for decorating
@@ -2712,6 +2729,7 @@ function buildDecor(e){ const D=DECOR[e.k], o=D.make(); const [x,z]=cellCenter(e
   if(D.tank) fillTank(o,e);
   return o; }
 function fitsDeck(e,ignore){ const H=HULL(), [fw,fd]=footprint(e); if(e.c<0||e.r<0||e.c+fw>H.cols||e.r+fd>H.rows) return false;
+  { const x0=-H.cols*CELL/2+e.c*CELL, z0=H.zc-H.rows*CELL/2+e.r*CELL; if(Math.abs(clamp(0,x0,x0+fw*CELL))<.16&&Math.abs(H.mast-clamp(H.mast,z0,z0+fd*CELL))<.16) return false; }   // keep clear of the mast
   for(const o of save.decor){ if(o===ignore||o===e) continue; const [ow,od]=footprint(o); if(e.c<o.c+ow&&o.c<e.c+fw&&e.r<o.r+od&&o.r<e.r+fd) return false; } return true; }
 const placedCount=k=>save.decor.filter(e=>e.k===k).length;
 const spare=k=>(save.inv[k]||0)-placedCount(k);
@@ -2736,6 +2754,10 @@ decoEl.innerHTML=`<div id="dctl"><button data-a="rot">Rotate</button><button dat
   <div class="dpanel"><div class="dbar"><b id="dtitle">Decorate</b><span id="dhint"></span><button id="dDone">Done</button></div><div id="dtray"></div></div>`;
 document.body.appendChild(decoEl);
 const decoBtn=document.createElement('button'); decoBtn.id='decoBtn'; decoBtn.className='hidden';
+const helmBtn=document.createElement('button'); helmBtn.id='helmBtn'; helmBtn.className='hidden';
+helmBtn.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a1 1 0 0 1 1 1v1.1a8 8 0 0 1 6.9 6.9H21a1 1 0 1 1 0 2h-1.1a8 8 0 0 1-6.9 6.9V21a1 1 0 1 1-2 0v-1.1A8 8 0 0 1 4.1 13H3a1 1 0 1 1 0-2h1.1A8 8 0 0 1 11 4.1V3a1 1 0 0 1 1-1m0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12m0 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5"/></svg>Take helm`;
+document.body.appendChild(helmBtn);
+helmBtn.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); if(walker.onDeck&&!walker.jump){ walker.sit=null; takeHelm(); } });
 decoBtn.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.2 3 10.4V20a1 1 0 0 0 1 1h5.5v-6h5v6H20a1 1 0 0 0 1-1v-9.6z"/></svg>Decorate`;
 document.body.appendChild(decoBtn);
 const footM=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#7fe0a0',transparent:true,opacity:.45,depthWrite:false})); footM.renderOrder=4; footM.visible=false; boat.decorG.parent.add(footM);
@@ -2824,7 +2846,6 @@ function buildDeckWalk(){
     if(!D.flat) COLLIDE.push({x:wp.x,z:wp.z,r:Math.max(fw,fd)*CELL*.42,h:1.6,ch:'deck',base:wp.y});
     if(D.sit) INTERACT.push({x:wp.x,z:wp.z,r:1.0,label:'Sit',hint:D.name,act:'sit',y:wp.y,ch:'deck',e});
     if(D.tank) INTERACT.push({x:wp.x,z:wp.z,r:1.3,label:'Feed',hint:'aquarium',act:'feed',y:wp.y,ch:'deck',e}); }
-  const hp=deckWorld(0,H.helm); INTERACT.push({x:hp.x,z:hp.z,r:.95,label:'Take helm',hint:'',act:'helm',y:hp.y,ch:'deck'});
 }
 function deckSpot(){ const H=HULL(); for(const [x,z] of [[0,H.helm+.6],[0,H.zc],[CELL,H.zc],[-CELL,H.zc]]){ const w=deckWorld(x,z); if(!blockedAt(w.x,w.z,w.y)) return w; } return deckWorld(0,H.helm+.6); }
 function walkDeck(){
@@ -2856,7 +2877,8 @@ function updateHouse(dt,t){
   if(deco.held&&deco.heldObj) deco.heldObj.position.y=DECK_Y+.18+Math.sin(t*4)*.04;
   // show the decorate button when you're stopped
   const show=canDecorate()&&!deco.on&&$('catch').classList.contains('hidden');
-  decoBtn.classList.toggle('hidden',!show); decoBtn.classList.toggle('pulse',show&&!save.decoUsed);
+  decoBtn.classList.toggle('hidden',!show||!!walker.onDeck); decoBtn.classList.toggle('pulse',show&&!save.decoUsed);
+  helmBtn.classList.toggle('hidden',!(walker.onDeck&&!walker.jump&&!deco.on));
 }
 
 setHull();
