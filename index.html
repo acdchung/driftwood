@@ -1643,20 +1643,23 @@ $('jgrid').addEventListener('click',e=>{ const sl=e.target.closest('.slot'); if(
 
 // ---------------------------------------------------------------- audio
 let ac=null, master=null, muted=false, rush=null;
+const MUSIC_VOL=2.4;   // music sits forward; ocean + sailing whoosh stay underneath
 function initAudio(){
   if(ac){ if(ac.state==='suspended') ac.resume(); if(started) initMusic(); return; }
   try{
-    ac=new (window.AudioContext||window.webkitAudioContext)(); master=ac.createGain(); master.gain.value=muted?0:.7; master.connect(ac.destination);
+    ac=new (window.AudioContext||window.webkitAudioContext)(); master=ac.createGain(); master.gain.value=muted?0:.7;
+    // soft limiter so the louder music never clips
+    const lim=ac.createDynamicsCompressor(); lim.threshold.value=-12; lim.knee.value=12; lim.ratio.value=3; lim.attack.value=.01; lim.release.value=.3; master.connect(lim); lim.connect(ac.destination);
     // ocean bed: brown noise, low-passed, slowly swelling
     const len=ac.sampleRate*4, buf=ac.createBuffer(1,len,ac.sampleRate), d=buf.getChannelData(0); let last=0;
     for(let i=0;i<len;i++){ const w=Math.random()*2-1; last=(last+.02*w)/1.02; d[i]=last*3.2; }
     const src=ac.createBufferSource(); src.buffer=buf; src.loop=true;
     const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=520;
-    const g=ac.createGain(); g.gain.value=.024; const lfo=ac.createOscillator(); lfo.frequency.value=.11; const lg=ac.createGain(); lg.gain.value=.012;
+    const g=ac.createGain(); g.gain.value=.018; const lfo=ac.createOscillator(); lfo.frequency.value=.11; const lg=ac.createGain(); lg.gain.value=.009;
     lfo.connect(lg); lg.connect(g.gain); src.connect(lp); lp.connect(g); g.connect(master); src.start(); lfo.start();
     // rush of water + wind that follows boat speed
     const wn=ac.createBuffer(1,ac.sampleRate*3,ac.sampleRate), wd=wn.getChannelData(0); for(let i=0;i<wd.length;i++) wd[i]=Math.random()*2-1;
-    const ws=ac.createBufferSource(); ws.buffer=wn; ws.loop=true; const wf=ac.createBiquadFilter(); wf.type='bandpass'; wf.Q.value=.7; wf.frequency.value=400;
+    const ws=ac.createBufferSource(); ws.buffer=wn; ws.loop=true; const wf=ac.createBiquadFilter(); wf.type='lowpass'; wf.Q.value=.4; wf.frequency.value=300;
     const wg=ac.createGain(); wg.gain.value=0; ws.connect(wf); wf.connect(wg); wg.connect(master); ws.start(); rush={g:wg,f:wf};
   }catch(e){ ac=null; }
 }
@@ -1686,10 +1689,10 @@ function initMusic(){
   verb.buffer=ir; const wet=ac.createGain(); wet.gain.value=.4; bus.connect(verb); verb.connect(wet); wet.connect(master);
   const sb=ac.createBuffer(1,Math.floor(ac.sampleRate*.08),ac.sampleRate), sd=sb.getChannelData(0); for(let i=0;i<sd.length;i++) sd[i]=(Math.random()*2-1)*Math.pow(1-i/sd.length,2);
   mus={bus,next:ac.currentTime+.4,step:0,mel:4,set:MUSIC.home,shk:sb};
-  if(musicOn) bus.gain.setTargetAtTime(1.6,ac.currentTime,4);
+  if(musicOn) bus.gain.setTargetAtTime(MUSIC_VOL,ac.currentTime,4);
   setInterval(schedMusic,100);
 }
-function setMusic(on){ musicOn=on; try{ localStorage.setItem('driftwood-music',on?'on':'off'); }catch(e){} if(mus) mus.bus.gain.setTargetAtTime(on?1.6:0,ac.currentTime,on?2:.4); }
+function setMusic(on){ musicOn=on; try{ localStorage.setItem('driftwood-music',on?'on':'off'); }catch(e){} if(mus) mus.bus.gain.setTargetAtTime(on?MUSIC_VOL:0,ac.currentTime,on?2:.4); }
 function mnote(f,t,dur,{type='sine',vol=.05,attack=.01,pan=0,lp=0,harm=0,hdecay=.35}={}){
   const o=ac.createOscillator(), g=ac.createGain(); o.type=type; o.frequency.value=f;
   let out=g; if(lp){ const fl=ac.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=lp; g.connect(fl); out=fl; }
@@ -3294,7 +3297,7 @@ function frame(now){
   BOBBERS.forEach((b,i)=>{ b.position.y=waveH(b.position.x,b.position.z,t)-.05; b.rotation.z=Math.sin(t*1.4+i)*.06; });
 
   // ---------- audio follows speed
-  if(rush){ const k=clamp(Math.abs(vf)/MAX_SPEED,0,1.6); rush.g.gain.setTargetAtTime(muted?0:.003+k*k*.13+boostF*.07,ac.currentTime,.15); rush.f.frequency.setTargetAtTime(350+k*900+boostF*500,ac.currentTime,.2); }
+  if(rush){ const k=clamp(Math.abs(vf)/MAX_SPEED,0,1.6); rush.g.gain.setTargetAtTime(muted?0:.002+k*k*.04+boostF*.025,ac.currentTime,.7); rush.f.frequency.setTargetAtTime(300+k*450+boostF*300,ac.currentTime,.6); }
 
   const cell=WATER_SIZE/WATER_SEG;
   water.position.set(Math.round(boat.pos.x/cell)*cell,0,Math.round(boat.pos.z/cell)*cell);
